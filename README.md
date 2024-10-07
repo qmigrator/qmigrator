@@ -1,23 +1,21 @@
 # Qmigrator Helm
 
-# Pre-requisites
-- Project information from vendor like project ID, Name, Login information, etc.
-- Docker Image registry credentials given by the vendor
-
+## Pre-requisites
+- Project information from Quadrant like project ID, Name, Login information, etc.
+- Docker/Helm registry credentials given by the Quadrant
 > [!NOTE]
 The above parameters are required for secret. Check the secret & imageCredentials section of values.yaml
 
-## Required namespace or create your own
+### Namespace creation or use own
 ```
 Kubectl create namespace qmig-ns 
 Kubectl config set-context --current --namespace=qmig-ns
 ```
 
-## Install Qmigrator
+### Install Qmigrator
 ```
-helm repo add qmigrator https://quadnaren.github.io/Qmig
-helm repo update
-helm install <name> qmigrator/qmig \
+helm registry login qmigrator.azurecr.io --username <username> --password <password>
+helm install <name> oci://qmigrator.azurecr.io/helm/qmig \
   --set secret.data.PROJECT_ID="1234" --set secret.data.PROJECT_NAME="example" \
   --set secret.data.POSTGRES_PASSWORD="xxxx" --set secret.data.REDIS_PASS="xxxx" \
   --set imageCredentials.data.username="userxxxx" --set imageCredentials.data.password="passxxxx"
@@ -26,13 +24,13 @@ helm install <name> qmigrator/qmig \
 ## Ingress Controller
 - Qmigrator uses ingress to expose the application
 - You may use existing ingress if present in the cluster by updating the properties of
-  - ingress
 <br>OR 
 - Enable the flag of Ingress controller installation within the Helm chart
 ```
   --set ingressController.enabled=true
 ```
 - Two providers of Ingress Controller available ["kubernetes", "nginx-inc"] which can be set via provider flag
+
 > [!NOTE]
 More Ref: https://github.com/kubernetes/ingress-nginx <br>
 https://github.com/nginxinc/kubernetes-ingress
@@ -45,32 +43,22 @@ https://github.com/nginxinc/kubernetes-ingress
 ```
 
 ## Data Persistence
-- Qmigrator uses shared volume for components like App, Engine & Others
-- While Metadata DB (Postgres) & Cache Component have their own
-- Override the pre-created PVC from persistentVolume.existingClaim flag in values.yaml
-- You may use the existing/default StorageClass for dynamic volume creation
+- Qmigrator Application requires two Storage 
+  - Shared Disk – Sharable across application (ReadWriteMany) 
+  - Block Storage – Each Disk for Database & Cache (ReadWriteOnce) 
 
-> [!Tip]
-Please check the examples for creating custom StorageClass, PV & PVC from this repo & override persistentVolume.existingClaim <br>
-More Ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+- Helm chart does support dynamic or static provisioning of PV/PVC creation; however, you need to manage the storage class and manual creation of persistent volume, etc. 
 
 > [!IMPORTANT]
 DO NOT USE ReadWriteMany or Shared Persistent volume given here to the Metadata DB (Postgres) & Cache Component
 
-# Customise Qmigrator
-- Use values.yaml from this repo, edit as required, and use while installing Helm
-```
-helm install <name> qmigrator/qmig -f values.yaml
-```
+> [!TIP]
+Check more [examples](example) in the repository
 
-## Examples
-> [!NOTE]
-Check more examples from a folder in the repository
-
-### Docker Desktop volume (Win)
+### Docker Desktop volume (Windows)
 - Use on Docker Desktop Kubernetes, LocalPath as Windows device path
 
-### Minikube volume (Linux, Win, MacOS, etc.)
+### Minikube volume (Linux, Windows, MacOS, etc.)
 - Mount the local path while starting the minikube
 - eg. /hostpc on minikube points to {LOCAL_PATH} of device
 ```
@@ -91,6 +79,22 @@ minikube start --mount --mount-string={LOCAL_PATH}:/hostpc
 - Shared system in AWS using EFS can be mounted
 - User & ODIC based login in AWS cluster can use & attach
 - See more: https://github.com/kubernetes-sigs/aws-efs-csi-driver/blob/master/examples/kubernetes/static_provisioning/README.md
+
+## TLS Certificate (Optional) 
+The APIs & GUI can be served over a TLS1.2+ connection. Ingress TLS can be set up using cert-manager &  letsencrypt, which manager auto-renew before expiration too.
+
+- Install the cert-managaer using Helm
+ https://cert-manager.io/docs/installation/helm/
+
+- Create certificate issuer on namespace/cluster
+  https://cert-manager.io/docs/concepts/issuer/
+
+- Update the annotation of ingress in ingress section of Qmigrator Helm
+https://cert-manager.io/docs/concepts/issuer/
+
+> [!NOTE]
+Depending on the requirement you can use the other provider or bring your own TLS certificate 
+https://kubernetes.io/docs/concepts/services-networking/ingress/#tls 
 
 ## Values.YAML
 ### Globals

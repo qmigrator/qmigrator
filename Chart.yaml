@@ -8,10 +8,10 @@ version: 0.1.1
 appVersion: "1.0.0"
 icon: "https://qmigrator.ai/assets/logo-8487ae7c.png"
 
-home: https://quadnaren.github.io/Qmig
+home: https://qmigrator.github.io/qmigrator
 
 sources:
-  - https://github.com/quadnaren/Qmig
+  - https://github.com/qmigrator/qmigrator
 
 maintainers:
   - name: narendra
