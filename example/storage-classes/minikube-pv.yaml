@@ -1,7 +1,7 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: "file-csi"
+  name: "disk-csi"
 provisioner: k8s.io/minikube-hostpath
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
