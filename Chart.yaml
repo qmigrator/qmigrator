@@ -1,0 +1,23 @@
+apiVersion: v2
+name: qmig
+description: A Helm chart for Qmigrator Application to be deployed in Kubernetes
+
+type: application
+
+version: 0.1.5
+appVersion: "1.0.0"
+icon: "https://qmigrator.ai/assets/logo-8487ae7c.png"
+
+home: https://quadnaren.github.io/Qmig
+
+sources:
+  - https://github.com/quadnaren/Qmig
+
+maintainers:
+  - name: narendra
+
+# dependencies:
+#   - name: nginx-gateway-fabric
+#     version: "1.4.0"
+#     repository: "oci://ghcr.io/nginxinc/charts"
+#     condition: nginx-gateway-fabric.enabled

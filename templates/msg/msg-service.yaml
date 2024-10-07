@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "qmig.msg.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.msg.labels" . | nindent 4 }}
+  {{- with .Values.msg.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.msg.service.type }}
+  ports:
+    - port: {{ .Values.msg.service.port }}
+      targetPort: {{ .Values.msg.name }}-tcp
+      protocol: TCP
+  selector:
+    {{- include "qmig.msg.selectorLabels" . | nindent 4 }}

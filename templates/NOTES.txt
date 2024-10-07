@@ -1,0 +1,71 @@
+---------------------------------
+CHART NAME: {{ .Chart.Name }}
+CHART VERSION: {{ .Chart.Version }}
+APP VERSION: {{ .Chart.AppVersion }}
+
+{{- $releaseNamespace := .Release.Namespace }}
+{{- $clusterDomain := .Values.clusterDomain }}
+{{- $airflowSecretName := include "qmig.airflow.secret" . }}
+{{- $fullname := (include "qmig.app.fullname" .)}}
+{{- $ingresshost := .Values.ingress.host | default "Undefined" }}
+
+** Please be patient while the chart is being deployed **
+
+🎉 ⭐ 🎉 ⭐ 🎉 ⭐ 🎉
+QMigrator Installed !!
+🎉 ⭐ 🎉 ⭐ 🎉 ⭐ 🎉
+
+{{- if .Values.ingress.enabled }}
+
+QMigrator can be accessed via port {{ .Values.app.service.port }} on the following DNS name from within your cluster:
+
+    {{ printf "%s.%s.svc.%s" $fullname $releaseNamespace $clusterDomain }}
+
+To connect to Airflow from outside the cluster, perform the following steps:
+
+1. Get the QMigrator URL and associate its hostname to your cluster external IP:
+
+    export CLUSTER_IP=$(minikube ip) # On Minikube. Use: `kubectl cluster-info` on others K8s clusters
+    echo "QMigrator URL: http{{ if hasKey .Values.ingress "tls" }}s{{ end }}://{{ $ingresshost }}"
+    echo "$CLUSTER_IP  {{ $ingresshost }}" | sudo tee -a /etc/hosts
+
+{{- else if eq .Values.app.service.type "ClusterIP" }}
+
+1.  Create a port-forward to the service:
+
+    kubectl port-forward --namespace {{ $releaseNamespace }} svc/{{ $fullname }} {{ .Values.app.service.port }}:{{ .Values.app.service.port }} &
+    echo "QMigrator URL: http://127.0.0.1:{{ .Values.app.service.port }}"
+
+{{- else if eq .Values.service.type "NodePort" }}
+
+1. Obtain the NodePort IP and port:
+
+    export NODE_IP=$(kubectl get nodes --namespace {{ $releaseNamespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+    export NODE_PORT=$(kubectl get svc --namespace {{ $releaseNamespace }} {{ $fullname }} -o jsonpath="{.spec.ports[0].nodePort}")
+    echo "QMigrator URL: http://${NODE_IP}:$NODE_PORT"
+
+{{- else if eq .Values.service.type "LoadBalancer" }}
+
+1. Obtain the LoadBalancer IP:
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ $fullname }}'
+
+    export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ $fullname }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
+    echo "QMigrator URL: http://${SERVICE_IP}:{{ .Values.app.service.port }}"
+
+{{- end }}
+
+2. Open a browser and access QMigrator using the obtained URL.
+
+3. Logon with your QMigrator credentials
+
+{{- if .Values.airflow.enabled }}
+
+4. Data migration -> Airflow is accessible with:
+
+    {{ include "utils.secret.getvalue" (dict "secret" $airflowSecretName "field" "airflow-password" "context" $) }}
+    echo User:     airflow
+    echo Password: $AIRFLOW_PASSWORD
+
+{{- end }}

@@ -1,0 +1,101 @@
+{{- if .Values.db.enabled }}
+{{- $nodeSelector := .Values.db.nodeSelector }}
+{{- $affinity := .Values.db.affinity }}
+{{- $tolerations := .Values.db.tolerations }}
+{{- $securityContext := include "podSecurityContext" (list . .Values.db) }}
+{{- $containerSecurityContext := include "containerSecurityContext" (list . .Values.db) }}
+{{- $pvcTemp := printf "%s-%s" (include "qmig.db.fullname" .) "empty" -}}
+{{- $pvc := include "qmig.db.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "qmig.db.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.db.labels" . | nindent 4 }}
+  {{- with .Values.db.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.db.replicas }}
+  strategy:
+    type: {{ .Values.db.strategy }}
+  selector:
+    matchLabels:
+      {{- include "qmig.db.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.db.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "qmig.db.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- include "qmig.dockerauthList" (list . .Values.db) | indent 6 }}
+      securityContext: {{ $securityContext | nindent 8 }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      serviceAccountName: {{ template "qmig.serviceAccount" . }}
+      initContainers: 
+      {{- include "qmig.db.load-db" (dict "Values" .Values "volumename" $pvcTemp ) | indent 8 }}
+      containers:
+        - name: {{ .Values.db.name }}
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          imagePullPolicy: {{ .Values.db.image.pullPolicy }}
+          ports:
+            - name: {{ .Values.db.name }}-tcp
+              containerPort: 5432
+              protocol: TCP
+          securityContext: {{ $containerSecurityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.db.resources | nindent 12 }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            {{- include "qmig.db.env" . | nindent 12 }}
+            {{- range $name, $value := omit .Values.db.env "POSTGRES_DB" }}
+            - name: {{ $name }}
+              value: {{ $value | quote}}
+            {{- end }}
+            {{- range .Values.db.envSecret }}
+            {{- if ne .name "POSTGRES_DB" }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretRef }}
+                  key: {{ .secretKey }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+          {{- include "qmig.db.volumeMounts" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 12 }}
+          {{- if .Values.db.extraVolumeMounts }}
+            {{- toYaml .Values.db.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: sqlconfig-sh
+          configMap:
+            name: {{ template "qmig.db.fullname" . }}-loader
+        - name: {{ $pvcTemp }}
+          emptyDir: {}
+        - name: {{ $pvc }}
+          {{- if .Values.db.persistentVolume.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ if .Values.db.persistentVolume.existingClaim }}{{ .Values.db.persistentVolume.existingClaim }}{{- else }}{{ template "qmig.db.fullname" . }}{{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end -}}
+      {{- if .Values.db.extraVolumes }}
+        {{- toYaml .Values.db.extraVolumes | nindent 8 }}
+      {{- end }}
+{{- end }}

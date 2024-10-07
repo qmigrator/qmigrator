@@ -1,0 +1,86 @@
+{{- if .Values.perfs.enabled }}
+{{- $nodeSelector := .Values.perfs.nodeSelector }}
+{{- $affinity := .Values.perfs.affinity }}
+{{- $tolerations := .Values.perfs.tolerations }}
+{{- $securityContext := include "podSecurityContext" (list . .Values.perfs) }}
+{{- $containerSecurityContext := include "containerSecurityContext" (list . .Values.perfs) }}
+{{- $pvcTemp := printf "%s-%s" (include "qmig.perfs.fullname" .) "empty" -}}
+{{- $pvc := include "qmig.pv.shared" . -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ template "qmig.perfs.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.perfs.labels" . | nindent 4 }}
+  {{- with .Values.perfs.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  concurrencyPolicy: {{ .Values.perfs.concurrencyPolicy }}
+  failedJobsHistoryLimit: {{ .Values.perfs.failedJobsHistoryLimit }}
+  schedule: {{ .Values.perfs.schedule | quote }}
+  successfulJobsHistoryLimit: {{ .Values.perfs.successfulJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ .Values.perfs.startingDeadlineSeconds }}
+  suspend: true
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: {{ .Values.perfs.ttlSecondsAfterFinished }}
+      backoffLimit: {{ .Values.perfs.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "qmig.perfs.labels" . | nindent 12 }}
+          {{- with .Values.perfs.annotations }}
+          annotations: {{ toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          {{- include "qmig.dockerauthList" (list . .Values.perfs) | indent 10 }}
+          securityContext: {{ $securityContext | nindent 12 }}
+          nodeSelector: {{- toYaml $nodeSelector | nindent 12 }}
+          affinity: {{- toYaml $affinity | nindent 12 }}
+          tolerations: {{- toYaml $tolerations | nindent 12 }}
+          serviceAccountName: {{ template "qmig.serviceAccount" . }}
+          containers:
+            - name: {{ .Values.perfs.name }}
+              image: "{{ .Values.perfs.image.repository }}:{{ .Values.perfs.image.tag }}"
+              imagePullPolicy: {{ .Values.perfs.image.pullPolicy }}
+              securityContext: {{ $containerSecurityContext | nindent 16 }}
+              resources:
+                {{- toYaml .Values.perfs.resources | nindent 16 }}
+              env:
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.name
+                {{- include "qmig.project.env" . | nindent 16 }}
+                {{- range $name, $value := .Values.perfs.env }}
+                - name: {{ $name }}
+                  value: {{ $value | quote}}
+                {{- end }}
+                {{- range .Values.perfs.envSecret }}
+                - name: {{ .name }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .secretRef }}
+                      key: {{ .secretKey }}
+                {{- end }}
+              volumeMounts:
+                {{- include "qmig.perfs.volumeMounts" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 16 }}
+              {{- if .Values.perfs.extraVolumeMounts }}
+                {{- toYaml .Values.perfs.extraVolumeMounts | nindent 16 }}
+              {{- end }}
+          restartPolicy: {{ .Values.perfs.restartPolicy }}
+          volumes:
+          {{- include "qmig.shared.volume" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 12 }}
+          {{- if .Values.perfs.extraVolumes }}
+            {{- toYaml .Values.perfs.extraVolumes | nindent 12 }}
+          {{- end }}
+{{- end }}

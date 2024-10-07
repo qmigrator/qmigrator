@@ -1,0 +1,124 @@
+{{- if .Values.airflow.enabled }}
+{{- $nodeSelector := .Values.airflow.nodeSelector }}
+{{- $affinity := .Values.airflow.affinity }}
+{{- $tolerations := .Values.airflow.tolerations }}
+{{- $securityContext := include "airflow.podSecurityContext" (list . .Values.airflow.scheduler) }}
+{{- $containerSecurityContext := include "airflow.containerSecurityContext" (list . .Values.airflow.scheduler) }}
+{{- $containerSecurityContextWaitForMigrations := include "airflow.containerSecurityContext" (list . .Values.airflow.waitForMigrations) }}
+{{- $pvcTemp := printf "%s-%s" (include "qmig.airflow.fullname" .) "empty" -}}
+{{- $pvc := include "qmig.pv.shared" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qmig.airflow.fullname" . }}-scheduler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.airflow.labels" . | nindent 4 }}
+    component: scheduler
+  {{- if .Values.airflow.scheduler.annotations }}
+  annotations: {{- toYaml .Values.airflow.scheduler.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.airflow.scheduler.replicas }}
+  selector:
+    matchLabels:
+      {{- include "qmig.airflow.selectorLabels" . | nindent 6 }}
+      component: scheduler
+  template:
+    metadata:
+      labels:
+        {{- include "qmig.airflow.selectorLabels" . | nindent 8 }}
+        component: scheduler
+      annotations:
+        {{- if .Values.airflow.scheduler.safeToEvict }}
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        {{- end }}
+        {{- if .Values.airflow.scheduler.podAnnotations }}
+          {{- toYaml .Values.airflow.scheduler.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "qmig.serviceAccount" . }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity:
+        {{- if $affinity }}
+          {{- toYaml $affinity | nindent 8 }}
+        {{- else }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  component: scheduler
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+        {{- end }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10
+      securityContext: {{ $securityContext | nindent 8 }}
+      {{- include "qmig.dockerauthList" (list . .Values.airflow) | indent 6 }}
+      initContainers:
+        {{- if .Values.airflow.waitForMigrations.enabled }}
+        - name: wait-for-airflow-migrations
+          resources: {{- toYaml .Values.airflow.waitForMigrations.resources | nindent 12 }}
+          imagePullPolicy: {{ .Values.airflow.image.pullPolicy }}
+          image: {{ template "qmig.airflow.image" . }}
+          securityContext: {{ $containerSecurityContextWaitForMigrations | nindent 12 }}
+          volumeMounts:
+          {{- include "qmig.airflow.volumeMounts" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 12 -}}
+          {{- if .Values.airflow.waitForMigrations.extraVolumeMounts }}
+            {{- toYaml .Values.airflow.waitForMigrations.extraVolumeMounts | nindent 10 }}
+          {{- end }}
+          args: {{- include "qmig.airflow.wait-for-migrations-command" . | indent 10 }}
+          env: {{- include "qmig.airflow.env" . | nindent 12 }}
+        {{- end }}
+      containers:
+        - name: scheduler
+          imagePullPolicy: {{ .Values.airflow.image.pullPolicy }}
+          image: {{ template "qmig.airflow.image" . }}
+          securityContext: {{ $containerSecurityContext | nindent 12 }}
+          resources: {{- toYaml .Values.airflow.scheduler.resources | nindent 12 }}
+          env:
+          {{- include "qmig.airflow.env" . | nindent 12 }}
+          {{- include "qmig.project.env" . | nindent 12 }}
+          {{- if .Values.airflow.scheduler.command }}
+          command: {{ tpl (toYaml .Values.airflow.scheduler.command) . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.airflow.scheduler.args }}
+          args: {{ tpl (toYaml .Values.airflow.scheduler.args) . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.airflow.scheduler.livenessProbe.initialDelaySeconds | default 10 }}
+            timeoutSeconds: {{ .Values.airflow.scheduler.livenessProbe.timeoutSeconds | default 20 }}
+            failureThreshold: {{ .Values.airflow.scheduler.livenessProbe.failureThreshold | default 5 }}
+            periodSeconds: {{ .Values.airflow.scheduler.livenessProbe.periodSeconds | default 60 }}
+            exec:
+              command:
+                {{- if .Values.airflow.scheduler.livenessProbe.command }}
+                  {{- toYaml .Values.airflow.scheduler.livenessProbe.command  | nindent 16 }}
+                {{- else }}
+                  {{- include "qmig.airflow.scheduler_liveness_check_command" . | indent 14 }}
+                {{- end }}
+          startupProbe:
+            timeoutSeconds: {{ .Values.airflow.scheduler.startupProbe.timeoutSeconds | default 20 }}
+            failureThreshold: {{ .Values.airflow.scheduler.startupProbe.failureThreshold | default 6 }}
+            periodSeconds: {{ .Values.airflow.scheduler.startupProbe.periodSeconds | default 10 }}
+            exec:
+              command:
+                {{- if .Values.airflow.scheduler.startupProbe.command }}
+                  {{- toYaml .Values.airflow.scheduler.startupProbe.command  | nindent 16 }}
+                {{- else }}
+                  {{- include "qmig.airflow.scheduler_startup_check_command" . | indent 14 }}
+                {{- end }}
+          volumeMounts:
+          {{- include "qmig.airflow.dataMounts" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 12 }}
+          {{- if .Values.airflow.scheduler.extraVolumeMounts }}
+            {{- toYaml .Values.airflow.scheduler.extraVolumeMounts | nindent 10 }}
+          {{- end }}
+      volumes:
+      {{- include "qmig.shared.volume" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 8 }}
+      {{- include "qmig.airflow.volume" . | indent 8 }}
+      {{- if .Values.airflow.extraVolumes }}
+        {{- toYaml .Values.airflow.extraVolumes | nindent 8 }}
+      {{- end }}
+{{- end }}

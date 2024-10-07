@@ -1,0 +1,37 @@
+{{- if .Values.eng.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "qmig.eng.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.eng.labels" . | nindent 4 }}
+  {{- with .Values.eng.autoscaling.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "qmig.eng.fullname" . }}
+  minReplicas: {{ .Values.eng.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.eng.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.eng.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.eng.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.eng.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.eng.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

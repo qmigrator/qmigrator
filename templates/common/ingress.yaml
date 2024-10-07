@@ -1,0 +1,70 @@
+{{- if .Values.ingress.enabled }}
+{{- $fullName := printf "%s-%s" (include "qmig.name" .) "ingress" -}}
+{{- $airSvcPort := .Values.airflow.webserver.service.port -}}
+{{- $engSvcPort := .Values.eng.service.port -}}
+{{- $appSvcPort := .Values.app.service.port -}}
+{{- $airfullName := printf "%s-%s" (include "qmig.airflow.fullname" .) "webserver" -}}
+{{- $engfullName := include "qmig.eng.fullname" . -}}
+{{- $appfullName := include "qmig.app.fullname" . -}}
+{{- if .Values.ingress.className }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{- end }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.ingress.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.ingress.className (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- if .Values.ingress.host }}
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+    {{- else }}
+    - http:
+    {{- end }}
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $appfullName }}
+                port:
+                  number: {{ $appSvcPort }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $engfullName }}
+                port:
+                  number: {{ $engSvcPort }}
+          {{- if .Values.airflow.enabled }}
+          - path: /airflow
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $airfullName }}
+                port:
+                  number: {{ $airSvcPort }}
+          {{- end }}
+{{- end }}

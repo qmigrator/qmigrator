@@ -1,0 +1,19 @@
+{{- if .Values.imageCredentials.create }}
+{{- $username := .Values.imageCredentials.data.username | required ".Values.imageCredentials.data.username is required." -}}
+{{- $password := .Values.imageCredentials.data.password | required ".Values.imageCredentials.data.password  is required." -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "qmig.dockerauth" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.dockerSecret.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook-weight": "-1"
+  {{- with .Values.imageCredentials.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ template "qmig.dockerSecret" . }}
+{{- end }}

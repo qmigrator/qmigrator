@@ -1,0 +1,20 @@
+{{- if .Values.db.enabled }}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ template "qmig.db.fullname" . }}-loader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.db.labels" . | nindent 4 }}
+  {{- with .Values.db.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  sqlconfig.sh: |-
+    {{- if .Values.db.dbshConfig.stringOverride }}
+    {{- .Values.db.dbshConfig.stringOverride | nindent 4 }}
+    {{- else }}
+    {{- tpl (.Files.Get "files/db-sh.sh") . | nindent 4 }}
+    {{- end }}
+{{- end }}

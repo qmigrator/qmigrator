@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "qmig.eng.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.eng.labels" . | nindent 4 }}
+  {{- with .Values.eng.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.eng.service.type }}
+  selector:
+    {{- include "qmig.eng.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: engine-ui
+      port: {{ .Values.eng.service.port }}
+      targetPort: 8080
+      protocol: TCP

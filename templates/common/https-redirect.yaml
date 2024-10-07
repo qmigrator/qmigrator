@@ -1,0 +1,31 @@
+{{- if and .Values.gateway.enabled .Values.httpRoutes.redirectHttp }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "qmig.httpRoutes.fullname" . }}-redirect
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.httpRoutes.labels" . | nindent 4 }}
+  {{- with .Values.httpRoutes.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- $Global := . }}
+  parentRefs:
+  {{- range $k, $v := .Values.httpRoutes.parentRefs }}
+  - name: {{ tpl $v.name $Global }}
+    namespace: {{ tpl $v.namespace $Global }}
+    sectionName: http
+  {{- end }}
+  {{- with .Values.httpRoutes.hostnames }}
+  hostnames:
+    {{ toYaml . }}
+  {{- end }}
+  rules:
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https
+        statusCode: 301
+{{- end }}

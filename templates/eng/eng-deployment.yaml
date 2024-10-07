@@ -1,0 +1,107 @@
+{{- $nodeSelector := .Values.eng.nodeSelector }}
+{{- $affinity := .Values.eng.affinity }}
+{{- $tolerations := .Values.eng.tolerations }}
+{{- $securityContext := include "podSecurityContext" (list . .Values.eng) }}
+{{- $containerSecurityContext := include "containerSecurityContext" (list . .Values.eng) }}
+{{- $pvcTemp := printf "%s-%s" (include "qmig.eng.fullname" .) "empty" -}}
+{{- $pvc := include "qmig.pv.shared" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "qmig.eng.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.eng.labels" . | nindent 4 }}
+  {{- with .Values.eng.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.eng.autoscaling.enabled }}
+  replicas: {{ .Values.eng.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "qmig.eng.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.eng.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "qmig.eng.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- include "qmig.dockerauthList" (list . .Values.eng) | indent 6 }}
+      securityContext: {{ $securityContext | nindent 8 }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      serviceAccountName: {{ template "qmig.serviceAccount" . }}
+      containers:
+        - name: {{ .Values.eng.name }}
+          image: "{{ .Values.eng.image.repository }}:{{ .Values.eng.image.tag }}"
+          imagePullPolicy: {{ .Values.eng.image.pullPolicy }}
+          ports:
+            - name: engine-api
+              containerPort: 8080
+          securityContext: {{ $containerSecurityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.eng.resources | nindent 12 }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            {{- include "qmig.project.env" . | nindent 12 }}
+            {{- include "qmig.db.env" . | nindent 12 }}
+            {{- include "qmig.eng.env" . | indent 12 }}
+            {{- range $name, $value := .Values.eng.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote}}
+            {{- end }}
+            {{- range .Values.eng.envSecret }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretRef }}
+                  key: {{ .secretKey }}
+            {{- end }}
+          {{- if .Values.eng.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: api/v1/Sample/Healthz
+              port: engine-api
+            initialDelaySeconds: {{ .Values.eng.readinessProbe.initialDelaySeconds | default 15 }}
+            periodSeconds: {{ .Values.eng.readinessProbe.periodSeconds | default 60 }}
+            timeoutSeconds: {{ .Values.eng.readinessProbe.timeoutSeconds | default 3 }}
+            successThreshold: {{ .Values.eng.readinessProbe.successThreshold | default 1 }}
+            failureThreshold: {{ .Values.eng.readinessProbe.failureThreshold | default 3}}
+          {{- end }}
+          {{- if .Values.eng.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: api/v1/Sample/Healthz
+              port: engine-api
+            initialDelaySeconds: {{ .Values.eng.readinessProbe.initialDelaySeconds | default 15 }}
+            periodSeconds: {{ .Values.eng.readinessProbe.periodSeconds | default 60 }}
+            timeoutSeconds: {{ .Values.eng.readinessProbe.timeoutSeconds | default 3 }}
+            successThreshold: {{ .Values.eng.readinessProbe.successThreshold | default 1 }}
+            failureThreshold: {{ .Values.eng.readinessProbe.failureThreshold | default 3}}
+          {{- end }}
+          volumeMounts:
+          {{- include "qmig.eng.volumeMounts" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 12 }}
+          {{- if .Values.eng.extraVolumeMounts }}
+            {{- toYaml .Values.eng.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+      volumes:
+      {{- include "qmig.shared.volume" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 8 }}
+      {{- if .Values.eng.extraVolumes }}
+        {{- toYaml .Values.eng.extraVolumes | nindent 8 }}
+      {{- end }}

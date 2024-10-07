@@ -1,0 +1,34 @@
+{{- if .Values.db.enabled }}
+{{- if .Values.db.persistentVolume.enabled -}}
+{{- if not .Values.db.persistentVolume.existingClaim -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "qmig.db.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.db.labels" . | nindent 4 }}
+  {{- with .Values.db.persistentVolume.annotations }}
+  annotations:
+    helm.sh/resource-policy: "keep"
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+{{ toYaml .Values.db.persistentVolume.accessModes | indent 4 }}
+{{- if .Values.db.persistentVolume.storageClass }}
+{{- if (eq "-" .Values.db.persistentVolume.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.db.persistentVolume.storageClass }}"
+{{- end }}
+{{- end }}
+{{- if .Values.db.persistentVolume.volumeBindingMode }}
+  volumeBindingModeName: "{{ .Values.db.persistentVolume.volumeBindingMode }}"
+{{- end }}
+  resources:
+    requests:
+      storage: "{{ .Values.db.persistentVolume.size }}"
+{{- end -}}
+{{- end -}}
+{{- end }}

@@ -1,0 +1,52 @@
+{{- if .Values.serviceAccount.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ template "qmig.serviceAccount" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.serviceAccount.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: true
+{{- end }}
+---
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ template "qmig.serviceAccount" . }}-role
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.serviceAccount.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - "pods/exec"
+      - secrets
+    verbs: ["get", "list", "create", "update", "delete"]
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ template "qmig.serviceAccount" . }}-rolebinding
+  namespace: {{ .Release.Namespace }} 
+  labels:
+    {{- include "qmig.serviceAccount.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "qmig.serviceAccount" . }}-role
+subjects:
+- namespace: {{ .Release.Namespace }} 
+  kind: ServiceAccount
+  name: {{ template "qmig.serviceAccount" . }}
+{{- end }}

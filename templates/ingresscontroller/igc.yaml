@@ -1,0 +1,367 @@
+{{- if and .Values.ingressController.enabled (ne .Values.ingressController.provider "nginx-inc") -}}
+{{- $nodeSelector := .Values.ingressController.nodeSelector }}
+{{- $affinity := .Values.ingressController.affinity }}
+{{- $tolerations := .Values.ingressController.tolerations }}
+{{- $securityContext := include "podSecurityContext" (list . .Values.ingressController) }}
+{{- $containerSecurityContext := include "containerSecurityContext" (list . .Values.ingressController) }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+  name: {{ template "qmig.ingresscontroller.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-controller
+  namespace: {{ .Release.Namespace }}
+data:
+  allow-snippet-annotations: "false"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-controller-admission
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: https-webhook
+      port: 443
+      targetPort: webhook
+      appProtocol: https
+  selector:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-controller
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: LoadBalancer
+  ipFamilyPolicy: SingleStack
+  ipFamilies: 
+    - IPv4
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+      appProtocol: http
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: https
+      appProtocol: https
+  selector:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-controller
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "qmig.ingresscontroller.labels" . | nindent 6 }}
+      app.kubernetes.io/component: controller
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        {{- include "qmig.ingresscontroller.labels" . | nindent 8 }}
+        app.kubernetes.io/component: controller
+    spec:
+      securityContext: {{ $securityContext | nindent 8 }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      dnsPolicy: ClusterFirst
+      {{- include "qmig.dockerauthList" (list . .Values.ingressController) | indent 6 }}
+      containers:
+        - name: controller
+          image: "{{ .Values.ingressController.controllerImage.repository }}:{{ .Values.ingressController.controllerImage.tag }}"
+          imagePullPolicy: IfNotPresent
+          lifecycle: 
+            preStop:
+              exec:
+                command:
+                - /wait-shutdown
+          args: 
+            - /nginx-ingress-controller
+            - --publish-service=$(POD_NAMESPACE)/{{ template "qmig.ingresscontroller.fullname" . }}-controller
+            - --election-id={{ template "qmig.ingresscontroller.fullname" . }}-leader
+            - --controller-class=k8s.io/{{ template "qmig.ingresscontroller.fullname" . }}
+            - --ingress-class=nginx
+            - --configmap=$(POD_NAMESPACE)/{{ template "qmig.ingresscontroller.fullname" . }}-controller
+            - --validating-webhook=:8443
+            - --validating-webhook-certificate=/usr/local/certificates/cert
+            - --validating-webhook-key=/usr/local/certificates/key
+          resources:
+            {{- toYaml .Values.ingressController.resources | nindent 12 }}
+          securityContext: {{ $containerSecurityContext | nindent 12 }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: LD_PRELOAD
+              value: /usr/local/lib/libmimalloc.so
+          livenessProbe: 
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 10254
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe: 
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 10254
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+            - name: webhook
+              containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: webhook-cert
+              mountPath: /usr/local/certificates/
+              readOnly: true
+      serviceAccountName: {{ template "qmig.ingresscontroller.fullname" . }}
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: webhook-cert
+          secret:
+            secretName: {{ template "qmig.ingresscontroller.fullname" . }}-admission
+---
+# We don't support namespaced ingressClass yet
+# So a ClusterRole and a ClusterRoleBinding is required
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+  annotations:
+    {{- if .Values.ingressController.isDefaultClass }}
+    "ingressclass.kubernetes.io/is-default-class": "true"
+    {{- end }}
+    "helm.sh/hook": pre-install,pre-upgrade
+  name: nginx
+spec:
+  controller: k8s.io/{{ template "qmig.ingresscontroller.fullname" . }}
+---
+# before changing this value, check the required kubernetes version
+# https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#prerequisites
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: admission-webhook
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-admission
+webhooks:
+  - name: validate.nginx.ingress.kubernetes.io
+    matchPolicy: Equivalent
+    rules:
+      - apiGroups:
+          - networking.k8s.io
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - ingresses
+    failurePolicy: Fail
+    sideEffects: None
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ template "qmig.ingresscontroller.fullname" . }}-controller-admission
+        namespace: {{ .Release.Namespace }}
+        path: /networking/v1/ingresses
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-admission
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: admission-webhook
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "qmig.ingresscontroller.labels" . | nindent 6 }}
+      app.kubernetes.io/component: admission-webhook
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-admission
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: admission-webhook
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-admission-create
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: admission-webhook
+spec:
+  template:
+    metadata:
+      name: {{ template "qmig.ingresscontroller.fullname" . }}-admission-create
+      labels:
+        {{- include "qmig.ingresscontroller.labels" . | nindent 8 }}
+        app.kubernetes.io/component: admission-webhook
+    spec:
+      securityContext: {{ $securityContext | nindent 8 }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      {{- include "qmig.dockerauthList" (list . .Values.ingressController) | indent 6 }}
+      containers:
+        - name: create
+          image: "{{ .Values.ingressController.webhookImage.repository }}:{{ .Values.ingressController.webhookImage.tag }}"
+          imagePullPolicy: IfNotPresent
+          args:
+            - create
+            - --host={{ template "qmig.ingresscontroller.fullname" . }}-controller-admission,{{ template "qmig.ingresscontroller.fullname" . }}-controller-admission.$(POD_NAMESPACE).svc
+            - --namespace=$(POD_NAMESPACE)
+            - --secret-name={{ template "qmig.ingresscontroller.fullname" . }}-admission
+          resources:
+            {{- toYaml .Values.ingressController.resources | nindent 12 }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          securityContext: 
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+      restartPolicy: OnFailure
+      serviceAccountName: {{ template "qmig.ingresscontroller.fullname" . }}-admission
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-admission-patch
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: admission-webhook
+spec:
+  template:
+    metadata:
+      name: {{ template "qmig.ingresscontroller.fullname" . }}-admission-patch
+      labels:
+        {{- include "qmig.ingresscontroller.labels" . | nindent 8 }}
+        app.kubernetes.io/component: admission-webhook
+    spec:
+      securityContext: {{ $securityContext | nindent 8 }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      {{- include "qmig.dockerauthList" (list . .Values.ingressController) | indent 6 }}
+      containers:
+        - name: create
+          image: "{{ .Values.ingressController.webhookImage.repository }}:{{ .Values.ingressController.webhookImage.tag }}"
+          imagePullPolicy: IfNotPresent
+          args:
+            - patch
+            - --webhook-name={{ template "qmig.ingresscontroller.fullname" . }}-admission
+            - --namespace=$(POD_NAMESPACE)
+            - --patch-mutating=false
+            - --secret-name={{ template "qmig.ingresscontroller.fullname" . }}-admission
+            - --patch-failure-policy=Fail
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            {{- toYaml .Values.ingressController.resources | nindent 12 }}
+          securityContext: 
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+      restartPolicy: OnFailure
+      serviceAccountName: {{ template "qmig.ingresscontroller.fullname" . }}-admission
+{{- end -}}

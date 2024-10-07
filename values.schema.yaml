@@ -1,0 +1,34 @@
+## Required global project information to be created in secret
+secret:
+  data:
+    PROJECT_ID: 1000
+    PROJECT_NAME: exampe
+    POSTGRES_PASSWORD: xxxx
+    REDIS_PASS: xxxx
+
+## Required docker registry information to pull images from
+imageCredentials:
+  data:
+    username: "xxxxxx-951af420-xxxxxx"
+    password: "xxxxxx-R518xxxxxxxx"
+
+## Installing the Ingress Controller
+ingressController:
+  enabled: true
+
+## Required exsiting or new PVC to be created
+shared:
+  persistentVolume:
+    existingClaim: "qmig-shared"
+
+ingress:
+  className: "nginx"
+  host: "example.internal"
+
+## Enabling the Airflow
+airflow:
+  enabled: true
+  secret:
+    data:
+      ## Required airflow Password if enabled
+      airflow_password: xxxx

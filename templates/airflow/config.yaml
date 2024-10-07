@@ -1,0 +1,46 @@
+{{- if .Values.airflow.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "qmig.airflow.config" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.airflow.labels" . | nindent 4 }}
+  {{- with .Values.airflow.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- $Global := . }}
+data:
+  airflow.cfg: |-
+    {{- range $section, $settings := .Values.airflow.config }}
+    [{{ $section }}]
+    {{- range $key, $val := $settings }}
+    {{ $key }} = {{ tpl ($val | toString) $Global }}
+    {{- end }}
+    {{ end }}
+
+  airflow_local_settings.py: |-
+    {{- if .Values.airflow.airflowLocalSettings }}
+      {{- tpl .Values.airflow.airflowLocalSettings . | nindent 4 }}
+    {{- else }}
+      {{- print "\n" }}
+    {{- end }}
+  
+  pod_template_file.yaml: |-
+    {{- if .Values.airflow.podTemplate }}
+      {{- tpl .Values.airflow.podTemplate . | nindent 4 }}
+    {{- else }}
+      {{- tpl (.Files.Get "files/pod-template.yaml") . | nindent 4 }}
+    {{- end }}
+
+  access.sh: |-
+    {{- tpl (.Files.Get "files/air-role.sh") . | nindent 4 }}
+
+  webserver_config.py: |-
+    {{- if .Values.airflow.webserverConfig }}
+      {{- tpl .Values.airflow.webserverConfig . | nindent 4 }}
+    {{- else }}
+      {{- tpl (.Files.Get "files/webserver.py") . | nindent 4 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,55 @@
+{{- if .Values.gateway.enabled }}
+{{- $airSvcPort := .Values.airflow.webserver.service.port -}}
+{{- $engSvcPort := .Values.eng.service.port -}}
+{{- $appSvcPort := .Values.app.service.port -}}
+{{- $airfullName := printf "%s-%s" (include "qmig.airflow.fullname" .) "webserver" -}}
+{{- $engfullName := include "qmig.eng.fullname" . -}}
+{{- $appfullName := include "qmig.app.fullname" . -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "qmig.httpRoutes.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.httpRoutes.labels" . | nindent 4 }}
+  {{- with .Values.httpRoutes.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- $Global := . }}
+  parentRefs:
+  {{- range $k, $v := .Values.httpRoutes.parentRefs }}
+  - name: {{ tpl $v.name $Global }}
+    namespace: {{ tpl $v.namespace $Global }}
+    sectionName: {{ $v.sectionName | default "http" }}
+  {{- end }}
+  {{- with .Values.httpRoutes.hostnames }}
+  hostnames:
+    {{ toYaml . }}
+  {{- end }}
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: {{ $appfullName }}
+      port: {{ $appSvcPort }}
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+    backendRefs:
+    - name: {{ $engfullName }}
+      port: {{ $engSvcPort }}
+  {{- if .Values.airflow.enabled }}
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /airflow
+    backendRefs:
+    - name: {{ $airfullName }}
+      port: {{ $airSvcPort }}
+  {{- end }}
+{{- end }}

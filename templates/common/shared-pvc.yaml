@@ -1,0 +1,31 @@
+{{- if .Values.shared.persistentVolume.enabled -}}
+{{- if not .Values.shared.persistentVolume.existingClaim -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "qmig.pv.shared" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.shared.labels" . | nindent 4 }}
+  {{- with .Values.shared.persistentVolume.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+{{ toYaml .Values.shared.persistentVolume.accessModes | indent 4 }}
+{{- if .Values.shared.persistentVolume.storageClass }}
+{{- if (eq "-" .Values.shared.persistentVolume.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.shared.persistentVolume.storageClass }}"
+{{- end }}
+{{- end }}
+{{- if .Values.shared.persistentVolume.volumeBindingMode }}
+  volumeBindingModeName: "{{ .Values.shared.persistentVolume.volumeBindingMode }}"
+{{- end }}
+  resources:
+    requests:
+      storage: "{{ .Values.shared.persistentVolume.size }}"
+{{- end -}}
+{{- end -}}

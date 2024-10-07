@@ -1,0 +1,40 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: "file-csi"
+provisioner: efs.csi.aws.com
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qmig-shared
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: "file-csi"
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: {{FileSystemId}}
+---
+# Source: qmig/templates/app/app-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/name: qmig
+  name: qmig-shared
+  namespace: qmig-ns
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: "file-csi"
+  volumeName: qmig-shared
+  resources:
+    requests:
+      storage: "5Gi"

@@ -1,0 +1,74 @@
+{{- if .Values.airflow.enabled }}
+{{- $nodeSelector := .Values.airflow.nodeSelector }}
+{{- $affinity := .Values.airflow.affinity }}
+{{- $tolerations := .Values.airflow.tolerations }}
+{{- $securityContext := include "airflow.podSecurityContext" (list . .Values.airflow.createUserJob) }}
+{{- $containerSecurityContext := include "airflow.containerSecurityContext" (list . .Values.airflow.createUserJob) }}
+{{- $pvcTemp := printf "%s-%s" (include "qmig.airflow.fullname" .) "empty" -}}
+{{- $pvc := include "qmig.pv.shared" . -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "qmig.airflow.fullname" . }}-create-user
+  labels:
+    {{- include "qmig.airflow.labels" . | nindent 4 }}
+  {{- $annotations := dict }}
+  {{- if .Values.airflow.createUserJob.useHelmHooks }}
+    {{- $_ := set $annotations "helm.sh/hook" "post-install,post-upgrade" }}
+    {{- $_ := set $annotations "helm.sh/hook-weight" "2" }}
+    {{- $_ := set $annotations "helm.sh/hook-delete-policy" "before-hook-creation,hook-succeeded" }}
+  {{- end }}
+  {{- with $annotations := merge $annotations .Values.airflow.createUserJob.annotations }}
+  annotations: {{- $annotations | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not (kindIs "invalid" .Values.airflow.createUserJob.ttlSecondsAfterFinished) }}
+  ttlSecondsAfterFinished: {{ .Values.airflow.createUserJob.ttlSecondsAfterFinished }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "qmig.airflow.labels" . | nindent 8 }}
+        component: createuser-job
+      {{- if .Values.airflow.createUserJob.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.airflow.createUserJob.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "qmig.serviceAccount" . }}
+      securityContext: {{ $securityContext | nindent 8 }}
+      restartPolicy: OnFailure
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      {{- include "qmig.dockerauthList" (list . .Values.airflow) | indent 6 }}
+      containers:
+        - name: create-user
+          imagePullPolicy: {{ .Values.airflow.image.pullPolicy }}
+          image: {{ template "qmig.airflow.image" . }}
+          securityContext: {{ $containerSecurityContext | nindent 12 }}
+          {{- if .Values.airflow.createUserJob.command }}
+          command: {{ tpl (toYaml .Values.airflow.createUserJob.command) . | nindent 12 }}
+          {{- else }}
+          command: {{- include "qmig.airflow.create_userjob_args" . | indent 12 }}
+          {{- end }}
+          {{- if .Values.airflow.createUserJob.args }}
+          args: {{ tpl (toYaml .Values.airflow.createUserJob.args) . | nindent 12 }}
+          {{- end }}
+          env: {{- include "qmig.airflow.env" . | nindent 12 }}
+          resources: {{- toYaml .Values.airflow.createUserJob.resources | nindent 12 }}
+          volumeMounts:
+          - name: config
+            mountPath: "/opt/airflow/access.sh"
+            subPath: access.sh
+          {{- include "qmig.airflow.volumeMounts" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 10 }}
+          {{- if .Values.eng.extraVolumeMounts }}
+            {{- toYaml .Values.eng.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+      volumes:
+      {{- include "qmig.shared.volume" (dict "Values" .Values "pvcname" $pvc "pvctemp" $pvcTemp ) | indent 8 }}
+      {{- include "qmig.airflow.volume" . | indent 8 }}
+      {{- if .Values.airflow.extraVolumes }}
+        {{- toYaml .Values.airflow.extraVolumes | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,21 @@
+{{- if .Values.db.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "qmig.db.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.db.labels" . | nindent 4 }}
+  {{- with .Values.db.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.db.service.type }}
+  ports:
+    - port: {{ .Values.db.service.port }}
+      targetPort: {{ .Values.db.name }}-tcp
+      protocol: TCP
+  selector:
+    {{- include "qmig.db.selectorLabels" . | nindent 4 }}
+{{- end }}

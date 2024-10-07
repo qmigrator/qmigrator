@@ -1,0 +1,195 @@
+{{- if and .Values.ingressController.enabled (eq .Values.ingressController.provider "nginx-inc") -}}
+{{- $nodeSelector := .Values.ingressController.nodeSelector }}
+{{- $affinity := .Values.ingressController.affinity }}
+{{- $tolerations := .Values.ingressController.tolerations }}
+{{- $securityContext := include "podSecurityContext" (list . .Values.ingressController) }}
+{{- $containerSecurityContext := include "containerSecurityContext" (list . .Values.ingressController) }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+data: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-leader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+spec:
+  externalTrafficPolicy: Local
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  - port: 443
+    targetPort: 443
+    protocol: TCP
+    name: https
+  selector:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "qmig.ingresscontroller.fullname" . }}-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "qmig.ingresscontroller.labels" . | nindent 6 }}   
+  template:
+    metadata:
+      labels:
+        {{- include "qmig.ingresscontroller.labels" . | nindent 8 }} 
+    spec:
+      volumes:
+      - name: nginx-etc
+        emptyDir: {}
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-lib
+        emptyDir: {}
+      - name: nginx-log
+        emptyDir: {}
+      securityContext: {{ $securityContext | nindent 8 }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
+      affinity: {{- toYaml $affinity | nindent 8 }}
+      tolerations: {{- toYaml $tolerations | nindent 8 }}
+      serviceAccountName: {{ template "qmig.ingresscontroller.fullname" . }}
+      automountServiceAccountToken: true
+      terminationGracePeriodSeconds: 30
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+      {{- include "qmig.dockerauthList" (list . .Values.eng) | indent 6 }}
+      containers:
+      - image: "{{ .Values.ingressController.image.repository }}:{{ .Values.ingressController.image.tag }}"
+        name: {{ template "qmig.ingresscontroller.fullname" . }}
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        - name: https
+          containerPort: 443
+          protocol: TCP
+        - name: readiness-port
+          containerPort: 8081
+        readinessProbe:
+          httpGet:
+            path: /nginx-ready
+            port: readiness-port
+          periodSeconds: 1
+          initialDelaySeconds: 0
+        resources:
+          {{- toYaml .Values.ingressController.resources | nindent 10 }}
+        securityContext: {{ $containerSecurityContext | nindent 10 }}
+        volumeMounts:
+        - mountPath: /etc/nginx
+          name: nginx-etc
+        - mountPath: /var/cache/nginx
+          name: nginx-cache
+        - mountPath: /var/lib/nginx
+          name: nginx-lib
+        - mountPath: /var/log/nginx
+          name: nginx-log
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        args:
+          - -nginx-plus=false
+          - -nginx-reload-timeout=60000
+          - -enable-app-protect=false
+          - -enable-app-protect-dos=false
+          - -nginx-configmaps=$(POD_NAMESPACE)/{{ template "qmig.ingresscontroller.fullname" . }}
+          - -ingress-class=nginx
+          - -watch-namespace=$(POD_NAMESPACE)
+          - -health-status=false
+          - -health-status-uri=/nginx-health
+          - -nginx-debug=false
+          - -v=1
+          - -nginx-status=true
+          - -nginx-status-port=8080
+          - -nginx-status-allow-cidrs=127.0.0.1
+          - -report-ingress-status
+          - -external-service={{ template "qmig.ingresscontroller.fullname" . }}-controller
+          - -enable-leader-election=true
+          - -leader-election-lock-name={{ template "qmig.ingresscontroller.fullname" . }}-leader
+          - -enable-prometheus-metrics=false
+          - -prometheus-metrics-listen-port=9113
+          - -enable-service-insight=false
+          - -service-insight-listen-port=9114
+          - -service-insight-tls-secret=
+          - -enable-custom-resources=false
+          - -enable-snippets=false
+          - -include-year=false
+          - -disable-ipv6=false
+          - -enable-tls-passthrough=false
+          - -enable-cert-manager=false
+          - -enable-oidc=false
+          - -enable-external-dns=false
+          - -default-http-listener-port=80
+          - -default-https-listener-port=443
+          - -ready-status=true
+          - -ready-status-port=8081
+          - -enable-latency-metrics=false
+          - -ssl-dynamic-reload=true
+          - -enable-telemetry-reporting=false
+          - -weight-changes-dynamic-reload=false
+      initContainers:
+      - name: init-{{ template "qmig.ingresscontroller.fullname" . }}
+        image: "{{ .Values.ingressController.image.repository }}:{{ .Values.ingressController.image.tag }}"
+        imagePullPolicy: "IfNotPresent"
+        command: ['cp', '-vdR', '/etc/nginx/.', '/mnt/etc']
+        resources:
+          {{- toYaml .Values.ingressController.resources | nindent 10 }}
+        securityContext: {{ $containerSecurityContext | nindent 10 }}
+        volumeMounts:
+        - mountPath: /mnt/etc
+          name: nginx-etc
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+  labels:
+    {{- include "qmig.ingresscontroller.labels" . | nindent 4 }}   
+  annotations:
+    {{- if .Values.ingressController.isDefaultClass }}
+    "ingressclass.kubernetes.io/is-default-class": "true"
+    {{- end }} 
+  namespace: {{ .Release.Namespace }}
+spec:
+  controller: nginx.org/{{ template "qmig.ingresscontroller.fullname" . }}-controller
+{{- end }}
