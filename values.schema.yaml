@@ -4,7 +4,6 @@ secret:
     PROJECT_ID: 1000
     PROJECT_NAME: exampe
     POSTGRES_PASSWORD: xxxx
-    REDIS_PASS: xxxx
 
 ## Required docker registry information to pull images from
 imageCredentials:
@@ -24,11 +23,3 @@ shared:
 ingress:
   className: "nginx"
   host: "example.internal"
-
-## Enabling the Airflow
-airflow:
-  enabled: true
-  secret:
-    data:
-      ## Required airflow Password if enabled
-      airflow_password: xxxx

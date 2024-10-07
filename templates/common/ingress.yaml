@@ -1,9 +1,7 @@
 {{- if .Values.ingress.enabled }}
-{{- $fullName := printf "%s-%s" (include "qmig.name" .) "ingress" -}}
-{{- $airSvcPort := .Values.airflow.webserver.service.port -}}
+{{- $fullName := printf "%s-%s" (include "qmig.name" .) "admin-ingress" -}}
 {{- $engSvcPort := .Values.eng.service.port -}}
 {{- $appSvcPort := .Values.app.service.port -}}
-{{- $airfullName := printf "%s-%s" (include "qmig.airflow.fullname" .) "webserver" -}}
 {{- $engfullName := include "qmig.eng.fullname" . -}}
 {{- $appfullName := include "qmig.app.fullname" . -}}
 {{- if .Values.ingress.className }}
@@ -58,13 +56,4 @@ spec:
                 name: {{ $engfullName }}
                 port:
                   number: {{ $engSvcPort }}
-          {{- if .Values.airflow.enabled }}
-          - path: /airflow
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $airfullName }}
-                port:
-                  number: {{ $airSvcPort }}
-          {{- end }}
 {{- end }}

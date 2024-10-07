@@ -86,7 +86,6 @@ spec:
       terminationGracePeriodSeconds: 30
       hostNetwork: false
       dnsPolicy: ClusterFirst
-      {{- include "qmig.dockerauthList" (list . .Values.eng) | indent 6 }}
       containers:
       - image: "{{ .Values.ingressController.image.repository }}:{{ .Values.ingressController.image.tag }}"
         name: {{ template "qmig.ingresscontroller.fullname" . }}
@@ -191,5 +190,5 @@ metadata:
     {{- end }} 
   namespace: {{ .Release.Namespace }}
 spec:
-  controller: nginx.org/{{ template "qmig.ingresscontroller.fullname" . }}-controller
+  controller: nginx.org/ingress-controller
 {{- end }}

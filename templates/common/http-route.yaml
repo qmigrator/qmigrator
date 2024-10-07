@@ -1,8 +1,6 @@
 {{- if .Values.gateway.enabled }}
-{{- $airSvcPort := .Values.airflow.webserver.service.port -}}
 {{- $engSvcPort := .Values.eng.service.port -}}
 {{- $appSvcPort := .Values.app.service.port -}}
-{{- $airfullName := printf "%s-%s" (include "qmig.airflow.fullname" .) "webserver" -}}
 {{- $engfullName := include "qmig.eng.fullname" . -}}
 {{- $appfullName := include "qmig.app.fullname" . -}}
 apiVersion: gateway.networking.k8s.io/v1
@@ -43,13 +41,4 @@ spec:
     backendRefs:
     - name: {{ $engfullName }}
       port: {{ $engSvcPort }}
-  {{- if .Values.airflow.enabled }}
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /airflow
-    backendRefs:
-    - name: {{ $airfullName }}
-      port: {{ $airSvcPort }}
-  {{- end }}
 {{- end }}

@@ -5,7 +5,6 @@ APP VERSION: {{ .Chart.AppVersion }}
 
 {{- $releaseNamespace := .Release.Namespace }}
 {{- $clusterDomain := .Values.clusterDomain }}
-{{- $airflowSecretName := include "qmig.airflow.secret" . }}
 {{- $fullname := (include "qmig.app.fullname" .)}}
 {{- $ingresshost := .Values.ingress.host | default "Undefined" }}
 
@@ -21,7 +20,7 @@ QMigrator can be accessed via port {{ .Values.app.service.port }} on the followi
 
     {{ printf "%s.%s.svc.%s" $fullname $releaseNamespace $clusterDomain }}
 
-To connect to Airflow from outside the cluster, perform the following steps:
+To connect to Qmigrator from outside the cluster, perform the following steps:
 
 1. Get the QMigrator URL and associate its hostname to your cluster external IP:
 
@@ -59,13 +58,3 @@ To connect to Airflow from outside the cluster, perform the following steps:
 2. Open a browser and access QMigrator using the obtained URL.
 
 3. Logon with your QMigrator credentials
-
-{{- if .Values.airflow.enabled }}
-
-4. Data migration -> Airflow is accessible with:
-
-    {{ include "utils.secret.getvalue" (dict "secret" $airflowSecretName "field" "airflow-password" "context" $) }}
-    echo User:     airflow
-    echo Password: $AIRFLOW_PASSWORD
-
-{{- end }}

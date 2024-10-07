@@ -1,10 +1,10 @@
 apiVersion: v2
-name: qmig
-description: A Helm chart for Qmigrator Application to be deployed in Kubernetes
+name: admin
+description: A Helm chart for Qmigrator admin to be deployed in Kubernetes
 
 type: application
 
-version: 0.1.5
+version: 0.1.1
 appVersion: "1.0.0"
 icon: "https://qmigrator.ai/assets/logo-8487ae7c.png"
 
@@ -17,7 +17,7 @@ maintainers:
   - name: narendra
 
 # dependencies:
-#   - name: nginx-gateway-fabric
-#     version: "1.4.0"
-#     repository: "oci://ghcr.io/nginxinc/charts"
-#     condition: nginx-gateway-fabric.enabled
+#   - name: ingress-nginx
+#     condition: ingressController.enabled
+#     repository: https://kubernetes.github.io/ingress-nginx
+#     version: 4.10.x

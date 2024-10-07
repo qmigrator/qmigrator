@@ -22,17 +22,11 @@ metadata:
   labels:
     {{- include "qmig.serviceAccount.labels" . | nindent 4 }}
 rules:
-  - apiGroups: [""]
+  - apiGroups: ["apps"]
     resources:
-      - pods
-      - "pods/exec"
-      - secrets
-    verbs: ["get", "list", "create", "update", "delete"]
-  - apiGroups: ["batch"]
-    resources:
-      - jobs
-      - cronjobs
-    verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - deployments
+      - deployments/scale
+    verbs: ["get", "list", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -45,6 +39,36 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: {{ template "qmig.serviceAccount" . }}-role
+subjects:
+- namespace: {{ .Release.Namespace }} 
+  kind: ServiceAccount
+  name: {{ template "qmig.serviceAccount" . }}
+{{- end }}
+{{- if and .Values.rbac.create (not .Values.rbac.namespaced) }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "qmig.serviceAccount" . }}-crole
+  labels:
+    {{- include "qmig.serviceAccount.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - deployments/scale
+    verbs: ["get", "list", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "qmig.serviceAccount" . }}-crolebinding
+  labels:
+    {{- include "qmig.serviceAccount.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "qmig.serviceAccount" . }}-crole
 subjects:
 - namespace: {{ .Release.Namespace }} 
   kind: ServiceAccount

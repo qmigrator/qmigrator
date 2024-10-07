@@ -10,7 +10,6 @@ metadata:
     {{- include "qmig.db.labels" . | nindent 4 }}
   {{- with .Values.db.persistentVolume.annotations }}
   annotations:
-    helm.sh/resource-policy: "keep"
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
