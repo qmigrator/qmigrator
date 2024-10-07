@@ -2,7 +2,7 @@
 
 ## Pre-requisites
 - Project information from Quadrant like project ID, Name, Login information, etc.
-- Docker Image registry credentials given by the Quadrant
+- Docker/Helm registry credentials given by the Quadrant
 > [!NOTE]
 The above parameters are required for secret. Check the secret & imageCredentials section of values.yaml
 
@@ -14,9 +14,8 @@ Kubectl config set-context --current --namespace=qmig-ns
 
 ### Install Qmigrator
 ```
-helm repo add qmigrator https://quadnaren.github.io/Qmig
-helm repo update
-helm install <name> qmigrator/qmig \
+helm registry login qmigrator.azurecr.io --username <username> --password <password>
+helm install <name> oci://qmigrator.azurecr.io/helm/qmig \
   --set secret.data.PROJECT_ID="1234" --set secret.data.PROJECT_NAME="example" \
   --set secret.data.POSTGRES_PASSWORD="xxxx" --set secret.data.REDIS_PASS="xxxx" \
   --set imageCredentials.data.username="userxxxx" --set imageCredentials.data.password="passxxxx"
