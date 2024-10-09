@@ -8,6 +8,8 @@ metadata:
     app.kubernetes.io/name: qmig
   annotations:
     cert-manager.io/issuer: letsencrypt
+    ## If cluster-issuer created
+    # cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: nginx
   tls:
@@ -30,5 +32,12 @@ spec:
             backend:
               service:
                 name: qmig-eng
+                port:
+                  number: 8080
+          - path: /airflow
+            pathType: Prefix
+            backend:
+              service:
+                name: qmig-airflow-webserver
                 port:
                   number: 8080

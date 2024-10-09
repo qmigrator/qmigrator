@@ -20,7 +20,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: {{FileSystemId}}
+    volumeHandle: {{FileSystemId}} ## Volume ID from EFS system
 ---
 # Source: qmig/templates/app/app-pvc.yaml
 apiVersion: v1

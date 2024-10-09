@@ -1,4 +1,5 @@
 # Source: qmig/templates/app/app-pv.yaml
+# REF: https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver#provision-static
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -14,7 +15,7 @@ spec:
     - implicit-dirs
   csi:
     driver: gcsfuse.csi.storage.gke.io
-    volumeHandle: {{BUCKET_NAME}}
+    volumeHandle: {{BUCKET_NAME}} ## GCP Bucket name
     readOnly: false
 ---
 # Source: qmig/templates/app/app-pvc.yaml

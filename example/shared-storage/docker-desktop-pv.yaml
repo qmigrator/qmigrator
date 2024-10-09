@@ -19,7 +19,7 @@ spec:
   storageClassName: "file-csi"
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: {{LOCAL_PATH}}
+    path: {{LOCAL_PATH}} ## Path to be mounted from Local
 ---
 # Source: qmig/templates/air/air-pvc.yaml
 apiVersion: v1
