@@ -1102,7 +1102,7 @@ tests:
 ## @param perfs.image.pullPolicy Performance pull policy Default: "qmigrator.azurecr.io/webperfotp"
 ## @param perfs.imagePullSecrets Performance pull secrets Default: {}
 perfs:
-  enabled: true
+  enabled: false
   name: "perfs"
   image:
     repository: qmigrator.azurecr.io/webperfotp
