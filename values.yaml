@@ -1374,7 +1374,7 @@ airflow:
     ## @param airflow.webserver.command Command to use when running the Airflow webserver Default: {}
     command: ~
     ## @param airflow.webserver.args Args to use when running the Airflow webserver Default: ["bash", "-c", "exec airflow webserver"]
-    args: ["bash", "-c", "exec airflow webserver"]
+    args: ["bash", "-c", "exec airflow webserver --pid /tmp/webserver.pid"]
 
     ## @param airflow.webserver.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
     resources:
