@@ -331,7 +331,6 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | asses.enabled | Enable Assessment | true | 
-| asses.name | Name for Assessment | "asses" | 
 | asses.image.repository | Assessment image repository | "qmigrator.azurecr.io/webassotp" | 
 | asses.image.tag | Assessment image tag/version | "992" | 
 | asses.image.pullPolicy | Assessment pull policy | "IfNotPresent" | 
@@ -361,7 +360,6 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | convs.enabled | Enable Conversion | true | 
-| convs.name | Name for Conversion | "convs" | 
 | convs.image.repository | Conversion image repository | "qmigrator.azurecr.io/webconvotp" | 
 | convs.image.tag | Conversion image tag/version | "993" | 
 | convs.image.pullPolicy | Conversion pull policy | "IfNotPresent" | 
@@ -391,7 +389,6 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | migrt.enabled | Enable Migration | true | 
-| migrt.name | Name for Migration | "migrt" | 
 | migrt.image.repository | Migration image repository | "qmigrator.azurecr.io/webdmotp" | 
 | migrt.image.tag | Migration image tag/version | "994" | 
 | migrt.image.pullPolicy | Migration pull policy | "IfNotPresent" | 
@@ -421,7 +418,6 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | tests.enabled | Enable Testing | false | 
-| tests.name | Name for Testing | "tests" | 
 | tests.image.repository | Testing image repository | "qmigrator.azurecr.io/webtestotp" | 
 | tests.image.tag | Testing image tag/version | "971" | 
 | tests.image.pullPolicy | Testing pull policy | "IfNotPresent" | 
@@ -451,7 +447,6 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | perfs.enabled | Enable Performance | false | 
-| perfs.name | Name for Performance | "perfs" | 
 | perfs.image.repository | Performance image repository | "qmigrator.azurecr.io/webperfotp" | 
 | perfs.image.tag | Performance image tag/version | "985" | 
 | perfs.image.pullPolicy | Performance pull policy | "qmigrator.azurecr.io/webperfotp" | 

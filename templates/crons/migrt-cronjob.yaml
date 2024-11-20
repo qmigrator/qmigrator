@@ -43,7 +43,7 @@ spec:
           tolerations: {{- toYaml $tolerations | nindent 12 }}
           serviceAccountName: {{ template "qmig.serviceAccount" . }}
           containers:
-            - name: {{ .Values.migrt.name }}
+            - name: {{ include "qmig.migrt.name" . }}
               image: "{{ .Values.migrt.image.repository }}:{{ .Values.migrt.image.tag }}"
               imagePullPolicy: {{ .Values.migrt.image.pullPolicy }}
               securityContext: {{ $containerSecurityContext | nindent 16 }}

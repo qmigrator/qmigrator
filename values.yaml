@@ -434,7 +434,8 @@ eng:
   ## Example:
   ## env:
   ##  ENV_NAME: ENV_VALUE
-  env: []
+  env:
+    TZ: "Africa/Abidjan"
 
   ## @param eng.envSecret List of secrets with extra environment variables for all the component pods Default: []
   ## Example:
@@ -753,14 +754,12 @@ msg:
 
 ## Assessment
 ## @param asses.enabled Enable Assessment Default: true
-## @param asses.name Name for Assessment Default: "asses"
 ## @param asses.image.repository Assessment image repository Default: "qmigrator.azurecr.io/webassotp"
 ## @param asses.image.tag Assessment image tag/version Default: "1472"
 ## @param asses.image.pullPolicy Assessment pull policy Default: "IfNotPresent"
 ## @param asses.imagePullSecrets Assessment pull secrets Default: {}
 asses:
   enabled: true
-  name: "asses"
   image:
     repository: qmigrator.azurecr.io/webassotp
     pullPolicy: IfNotPresent
@@ -838,14 +837,12 @@ asses:
 
 ## Conversion
 ## @param convs.enabled Enable Conversion Default: true
-## @param convs.name Name for Conversion Default: "convs"
 ## @param convs.image.repository Conversion image repository Default: "qmigrator.azurecr.io/webconvotp"
 ## @param convs.image.tag Conversion image tag/version Default: "1473"
 ## @param convs.image.pullPolicy Conversion pull policy Default: "IfNotPresent"
 ## @param convs.imagePullSecrets Conversion pull secrets Default: {}
 convs:
   enabled: true
-  name: "convs"
   image:
     repository: qmigrator.azurecr.io/webconvotp
     pullPolicy: IfNotPresent
@@ -924,14 +921,12 @@ convs:
 
 ## Migration
 ## @param migrt.enabled Enable Migration Default: true
-## @param migrt.name Name for Migration Default: "migrt"
 ## @param migrt.image.repository Migration image repository Default: "qmigrator.azurecr.io/webdmotp"
 ## @param migrt.image.tag Migration image tag/version Default: "1475"
 ## @param migrt.image.pullPolicy Migration pull policy Default: "IfNotPresent"
 ## @param migrt.imagePullSecrets Migration pull secrets Default: {}
 migrt:
   enabled: true
-  name: "migrt"
   image:
     repository: qmigrator.azurecr.io/webdmotp
     pullPolicy: IfNotPresent
@@ -1010,14 +1005,12 @@ migrt:
 
 ## Testing
 ## @param tests.enabled Enable Testing Default: false
-## @param tests.name Name for Testing Default: "tests"
 ## @param tests.image.repository Testing image repository Default: "qmigrator.azurecr.io/webtestotp"
 ## @param tests.image.tag Testing image tag/version Default: "971"
 ## @param tests.image.pullPolicy Testing pull policy Default: "IfNotPresent"
 ## @param tests.imagePullSecrets Testing pull secrets Default: {}
 tests:
   enabled: false
-  name: "tests"
   image:
     repository: qmigrator.azurecr.io/webtestotp
     pullPolicy: IfNotPresent
@@ -1096,14 +1089,12 @@ tests:
 
 ## Performance
 ## @param perfs.enabled Enable Performance Default: false
-## @param perfs.name Name for Performance Default: "perfs"
 ## @param perfs.image.repository Performance image repository Default: "qmigrator.azurecr.io/webperfotp"
 ## @param perfs.image.tag Performance image tag/version Default: "985"
 ## @param perfs.image.pullPolicy Performance pull policy Default: "qmigrator.azurecr.io/webperfotp"
 ## @param perfs.imagePullSecrets Performance pull secrets Default: {}
 perfs:
   enabled: false
-  name: "perfs"
   image:
     repository: qmigrator.azurecr.io/webperfotp
     pullPolicy: IfNotPresent

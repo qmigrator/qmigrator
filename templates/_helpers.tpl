@@ -199,6 +199,8 @@ component: {{ .Values.eng.name | quote }}
       name: {{ include "qmig.airflow.secret" . }}
       key: airflow-password
   {{- end }}
+- name: CRON_PREFIX
+  value: {{ .Release.Name }}
 {{- end }}
 
 {{- define "qmig.eng.volumeMounts" }}
@@ -358,8 +360,13 @@ component: {{ .Values.msg.name | quote }}
 {{/*
 All specification for asses module
 */}}
+
+{{- define "qmig.asses.name" -}}
+{{- printf "%s" "asses" -}}
+{{- end -}}
+
 {{- define "qmig.asses.selectorLabels" -}}
-component: {{ .Values.asses.name | quote }}
+component: {{ include "qmig.asses.name" . }}
 {{ include "qmig.selectorLabels" . }}
 {{- with .Values.asses.labels }}
 {{ toYaml . | print }}
@@ -372,7 +379,7 @@ component: {{ .Values.asses.name | quote }}
 {{- end -}}
 
 {{- define "qmig.asses.fullname" -}}
-{{- printf "%s-%s" .Release.Name .Values.asses.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (include "qmig.asses.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "qmig.asses.volumeMounts" }}
@@ -393,8 +400,13 @@ component: {{ .Values.asses.name | quote }}
 {{/*
 All specification for convs module
 */}}
+
+{{- define "qmig.convs.name" -}}
+{{- printf "%s" "convs" -}}
+{{- end -}}
+
 {{- define "qmig.convs.selectorLabels" -}}
-component: {{ .Values.convs.name | quote }}
+component: {{ include "qmig.convs.name" . }}
 {{ include "qmig.selectorLabels" . }}
 {{- with .Values.convs.labels }}
 {{ toYaml . | print }}
@@ -407,7 +419,7 @@ component: {{ .Values.convs.name | quote }}
 {{- end -}}
 
 {{- define "qmig.convs.fullname" -}}
-{{- printf "%s-%s" .Release.Name .Values.convs.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (include "qmig.convs.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "qmig.convs.volumeMounts" }}
@@ -427,8 +439,13 @@ component: {{ .Values.convs.name | quote }}
 {{/*
 All specification for migrt module
 */}}
+
+{{- define "qmig.migrt.name" -}}
+{{- printf "%s" "migrt" -}}
+{{- end -}}
+
 {{- define "qmig.migrt.selectorLabels" -}}
-component: {{ .Values.migrt.name | quote }}
+component: {{ include "qmig.migrt.name" . }}
 {{ include "qmig.selectorLabels" . }}
 {{- with .Values.migrt.labels }}
 {{ toYaml . | print }}
@@ -441,7 +458,7 @@ component: {{ .Values.migrt.name | quote }}
 {{- end -}}
 
 {{- define "qmig.migrt.fullname" -}}
-{{- printf "%s-%s" .Release.Name .Values.migrt.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (include "qmig.migrt.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "qmig.migrt.volumeMounts" }}
@@ -467,8 +484,13 @@ component: {{ .Values.migrt.name | quote }}
 {{/*
 All specification for tests module
 */}}
+
+{{- define "qmig.tests.name" -}}
+{{- printf "%s" "tests" -}}
+{{- end -}}
+
 {{- define "qmig.tests.selectorLabels" -}}
-component: {{ .Values.tests.name | quote }}
+component: {{ include "qmig.tests.name" . }}
 {{ include "qmig.selectorLabels" . }}
 {{- with .Values.tests.labels }}
 {{ toYaml . | print }}
@@ -481,7 +503,7 @@ component: {{ .Values.tests.name | quote }}
 {{- end -}}
 
 {{- define "qmig.tests.fullname" -}}
-{{- printf "%s-%s" .Release.Name .Values.tests.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (include "qmig.tests.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "qmig.tests.volumeMounts" }}
@@ -503,8 +525,13 @@ component: {{ .Values.tests.name | quote }}
 {{/*
 All specification for perfs module
 */}}
+
+{{- define "qmig.perfs.name" -}}
+{{- printf "%s" "perfs" -}}
+{{- end -}}
+
 {{- define "qmig.perfs.selectorLabels" -}}
-component: {{ .Values.perfs.name | quote }}
+component: {{ include "qmig.perfs.name" . }}
 {{ include "qmig.selectorLabels" . }}
 {{- with .Values.perfs.labels }}
 {{ toYaml . | print }}
@@ -517,7 +544,7 @@ component: {{ .Values.perfs.name | quote }}
 {{- end -}}
 
 {{- define "qmig.perfs.fullname" -}}
-{{- printf "%s-%s" .Release.Name .Values.perfs.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (include "qmig.perfs.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "qmig.perfs.volumeMounts" }}
