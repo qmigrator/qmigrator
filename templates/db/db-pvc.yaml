@@ -8,9 +8,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "qmig.db.labels" . | nindent 4 }}
-  {{- with .Values.db.persistentVolume.annotations }}
   annotations:
-    helm.sh/resource-policy: "keep"
+    "helm.sh/resource-policy": "keep"
+  {{- with .Values.db.persistentVolume.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
