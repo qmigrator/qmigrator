@@ -6,19 +6,20 @@
 > [!NOTE]
 The above parameters are required for secret. Check the secret & imageCredentials section of values.yaml
 
+### Customize & prepare value file
+- You can provide a custom values file with the required properties.
+- A minimal version is available in [values.schema.yaml](values.schema.yaml), but you can still modify multiple properties in [values.yaml](values.yaml).
+
 ### Namespace creation or use own
 ```
 Kubectl create namespace qmig-ns 
 Kubectl config set-context --current --namespace=qmig-ns
 ```
 
-### Install Qmigrator
+### Install Qmigrator in Quick setting
 ```
 helm registry login qmigrator.azurecr.io --username <username> --password <password>
-helm install <name> oci://qmigrator.azurecr.io/helm/qmig \
-  --set secret.data.PROJECT_ID="1234" --set secret.data.PROJECT_NAME="example" \
-  --set secret.data.POSTGRES_PASSWORD="xxxx" --set secret.data.REDIS_PASS="xxxx" \
-  --set imageCredentials.data.username="userxxxx" --set imageCredentials.data.password="passxxxx"
+helm install <name> oci://qmigrator.azurecr.io/helm/qmig -f values.schema.yaml
 ```
 
 ## Ingress Controller
@@ -187,7 +188,6 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | serviceAccount.annotations | Additional custom annotations for the ServiceAccount | {} | 
 | serviceAccount.labels | Labels for ServiceAccount | {} | 
 | rbac.create | Create Role and RoleBinding | true | 
-| rbac.namespaced | Restrict to namespaced role | false |
 ### App Components
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
