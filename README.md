@@ -246,7 +246,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | eng.autoscaling.maxReplicas | Configure a maximum amount of pods | 2 | 
 | eng.autoscaling.targetCPUUtilizationPercentage | Define the CPU target to trigger the scaling actions (utilization percentage) | 80 | 
 | eng.autoscaling.targetMemoryUtilizationPercentage | Define the memory target to trigger the scaling actions (utilization percentage) | 80 | 
-| eng.env | Add extra environment variables for the Engine component pods | [] | 
+| eng.env | Add extra environment variables for the Engine component pods | [TZ] | 
 | eng.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 ### Metadata Database
 | Property | Description | Default | 

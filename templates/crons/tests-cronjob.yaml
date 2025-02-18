@@ -61,10 +61,9 @@ spec:
                       apiVersion: v1
                       fieldPath: metadata.name
                 {{- include "qmig.project.env" . | nindent 16 }}
-                {{- range $name, $value := .Values.tests.env }}
-                - name: {{ $name }}
-                  value: {{ $value | quote}}
-                {{- end }}
+                {{- with .Values.tests.env -}}
+                {{- toYaml . | nindent 16 }}
+                {{- end -}} 
                 {{- range .Values.tests.envSecret }}
                 - name: {{ .name }}
                   valueFrom:

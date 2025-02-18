@@ -433,9 +433,11 @@ eng:
   ## @param eng.env Add extra environment variables for the Engine component pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env:
-    TZ: "Africa/Abidjan"
+    - name: TZ
+      value: "Africa/Abidjan"
 
   ## @param eng.envSecret List of secrets with extra environment variables for all the component pods Default: []
   ## Example:
@@ -589,9 +591,11 @@ db:
   ## @param db.env Add extra environment variables for the DB component pods Default: [JDBC_PARAMS]
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env:
-    JDBC_PARAMS: "sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    - name: JDBC_PARAMS
+      value: "sslfactory=org.postgresql.ssl.NonValidatingFactory"
 
   ## @param db.envSecret List of secrets with extra environment variables for all the component pods Default: []
   ## Example:
@@ -735,7 +739,8 @@ msg:
   ## @param msg.env Add extra environment variables for the Cache component pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env: []
 
   ## @param msg.envSecret List of secrets with extra environment variables for all the component pods Default: []
@@ -819,7 +824,8 @@ asses:
   ## @param asses.env Add extra environment variables for the Assessment pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env: []
 
   ## @param asses.envSecret List of secrets with extra environment variables for all the component pods Default: []
@@ -902,7 +908,8 @@ convs:
   ## @param convs.env Add extra environment variables for the Conversion pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env: []
 
   ## @param convs.envSecret List of secrets with extra environment variables for all the component pods Default: []
@@ -986,7 +993,8 @@ migrt:
   ## @param migrt.env Add extra environment variables for the Migration pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env: []
 
   ## @param migrt.envSecret List of secrets with extra environment variables for all the component pods Default: []
@@ -1070,7 +1078,8 @@ tests:
   ## @param tests.env Add extra environment variables for the Testing pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env: []
 
   ## @param tests.envSecret List of secrets with extra environment variables for all the component pods Default: []
@@ -1154,7 +1163,8 @@ perfs:
   ## @param perfs.env Add extra environment variables for the Performance pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env: []
 
   ## @param perfs.envSecret List of secrets with extra environment variables for all the component pods Default: []
@@ -1310,7 +1320,8 @@ airflow:
   ## @param airflow.env Add extra environment variables for the Airflow pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env: []
 
   ## @param airflow.envSecret List of secrets with extra environment variables for all the component pods Default: []

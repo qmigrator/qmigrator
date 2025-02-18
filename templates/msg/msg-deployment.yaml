@@ -75,14 +75,13 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
             {{- include "qmig.project.env" . | nindent 12 }}
-            {{- include "qmig.msg.env" . | indent 12 }}
+            {{- include "qmig.msg.env" . | nindent 12 }}
+            {{- with .Values.msg.env -}}
+            {{- toYaml . | nindent 12 }}
+            {{- end -}} 
             {{- if .Values.msg.master.enabled }}
             - name: MASTER
               value: "true"
-            {{- end }}
-            {{- range $name, $value := .Values.msg.env }}
-            - name: {{ $name }}
-              value: {{ $value | quote}}
             {{- end }}
             {{- range .Values.msg.envSecret }}
             - name: {{ .name }}
