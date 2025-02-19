@@ -81,9 +81,9 @@ spec:
           env:
           {{- include "qmig.airflow.env" . | nindent 12 }}
           {{- include "qmig.project.env" . | nindent 12 }}
-          {{- with .Values.airflow.env -}}
+          {{- with .Values.airflow.env }}
           {{- toYaml . | nindent 12 }}
-          {{- end -}}
+          {{- end }} 
           {{- if .Values.airflow.scheduler.command }}
           command: {{ tpl (toYaml .Values.airflow.scheduler.command) . | nindent 12 }}
           {{- end }}
