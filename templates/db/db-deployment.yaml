@@ -64,10 +64,9 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
             {{- include "qmig.db.env" . | nindent 12 }}
-            {{- range $name, $value := omit .Values.db.env "POSTGRES_DB" }}
-            - name: {{ $name }}
-              value: {{ $value | quote}}
-            {{- end }}
+            {{- with .Values.db.env -}}
+            {{- toYaml . | nindent 12 }}
+            {{- end -}} 
             {{- range .Values.db.envSecret }}
             {{- if ne .name "POSTGRES_DB" }}
             - name: {{ .name }}

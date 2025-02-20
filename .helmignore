@@ -24,6 +24,7 @@
 *.md
 robots.txt
 *.tgz
+.github/
 # airflow
 # msg
 # ingresscontroller
@@ -32,3 +33,4 @@ robots.txt
 # crons
 # common
 # app
+example

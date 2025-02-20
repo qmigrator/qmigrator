@@ -61,11 +61,10 @@ spec:
                   fieldPath: metadata.name
             {{- include "qmig.project.env" . | nindent 12 }}
             {{- include "qmig.db.env" . | nindent 12 }}
-            {{- include "qmig.eng.env" . | indent 12 }}
-            {{- range $name, $value := .Values.eng.env }}
-            - name: {{ $name }}
-              value: {{ $value | quote}}
-            {{- end }}
+            {{- include "qmig.eng.env" . | nindent 12 }}
+            {{- with .Values.eng.env -}}
+            {{- toYaml . | nindent 12 }}
+            {{- end -}} 
             {{- range .Values.eng.envSecret }}
             - name: {{ .name }}
               valueFrom:

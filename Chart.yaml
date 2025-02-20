@@ -9,8 +9,10 @@ appVersion: "1.0.0"
 icon: "https://qmigrator.ai/assets/logo-8487ae7c.png"
 
 home: https://qmigrator.github.io/qmigrator
+home: https://qmigrator.github.io/qmigrator
 
 sources:
+  - https://github.com/qmigrator/qmigrator
   - https://github.com/qmigrator/qmigrator
 
 maintainers:

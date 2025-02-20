@@ -423,8 +423,11 @@ eng:
   ## @param eng.env Add extra environment variables for the Engine component pods Default: []
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
-  env: []
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
+  env:
+    - name: TZ
+      value: "Africa/Abidjan"
 
   ## @param eng.envSecret List of secrets with extra environment variables for all the component pods Default: []
   ## Example:
@@ -578,9 +581,11 @@ db:
   ## @param db.env Add extra environment variables for the DB component pods Default: [JDBC_PARAMS]
   ## Example:
   ## env:
-  ##  ENV_NAME: ENV_VALUE
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
   env:
-    JDBC_PARAMS: "sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    - name: JDBC_PARAMS
+      value: "sslfactory=org.postgresql.ssl.NonValidatingFactory"
 
   ## @param db.envSecret List of secrets with extra environment variables for all the component pods Default: []
   ## Example:

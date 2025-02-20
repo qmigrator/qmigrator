@@ -58,10 +58,9 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.name
-            {{- range $name, $value := .Values.app.env }}
-            - name: {{ $name }}
-              value: {{ $value | quote}}
-            {{- end }}
+            {{- with .Values.app.env -}}
+            {{- toYaml . | nindent 12 }}
+            {{- end -}}
             {{- range .Values.app.envSecret }}
             - name: {{ .name }}
               valueFrom:
