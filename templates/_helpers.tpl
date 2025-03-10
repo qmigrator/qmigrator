@@ -199,7 +199,7 @@ component: {{ .Values.eng.name | quote }}
       name: {{ include "qmig.airflow.secret" . }}
       key: airflow-password
   {{- end }}
-- name: CRON_PREFIX
+- name: CRONJOB_PREFIX
   value: {{ .Release.Name }}
 {{- end }}
 
