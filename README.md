@@ -489,6 +489,67 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | perfs.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Performance pods | [] | 
 | perfs.extraVolumes | Optionally specify an extra list of additional volumes for all the Performance pods | [] | 
 
+### Deployment
+| Property | Description | Default | 
+| :--- | :--- | :--- | 
+| deplo.enabled | Enable Deployment | false | 
+| deplo.image.repository | Deployment image repository | "qmigrator.azurecr.io/webdeployotp" | 
+| deplo.image.tag | Deployment image tag/version | "1.0.0" | 
+| deplo.image.pullPolicy | Deployment pull policy | "IfNotPresent" | 
+| deplo.imagePullSecrets | Deployment pull secrets | {} | 
+| deplo.annotations | Add extra annotations to the Deployment | {} | 
+| deplo.podAnnotations | Add extra Pod annotations to the Deployment pods | {} | 
+| deplo.securityContexts.pod | Default security context for Deployment pods | {} | 
+| deplo.securityContexts.container | Default security context for Deployment containers | {} | 
+| deplo.tolerations | Tolerations for Deployment pods assignment | {} | 
+| deplo.affinity | Affinity for Deployment pods assignment (evaluated as a template) | {} | 
+| deplo.nodeSelector | Node labels for Deployment pods assignment | {} | 
+| deplo.labels | Labels for Deployment | {} | 
+| deplo.schedule | Specifies the cron job schedule using the standard cron syntax | "*/10 * * * *" | 
+| deplo.failedJobsHistoryLimit | How many failed executions to track in history. | 2 | 
+| deplo.successfulJobsHistoryLimit | How many successful executions to track in history. | 2 | 
+| deplo.startingDeadlineSeconds | How many seconds a job is allowed to miss its scheduled start time before it is considered failed | 500 | 
+| deplo.concurrencyPolicy | Handle scenario when concurrent jobs are scheduled | Forbid | 
+| deplo.restartPolicy | Restart the container keeping the same Pod in Node | Never | 
+| deplo.ttlSecondsAfterFinished | Clean up finished Jobs after the specific seconds | 600 | 
+| deplo.backoffLimit | Each pod failure is counted towards the specified limit | 2 | 
+| deplo.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+| deplo.env | Add extra environment variables for the Deployment pods | [] | 
+| deplo.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
+| deplo.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Deployment pods | [] | 
+| deplo.extraVolumes | Optionally specify an extra list of additional volumes for all the Deployment pods | [] | 
+
+### DBA
+| Property | Description | Default | 
+| :--- | :--- | :--- | 
+| dba.enabled | Enable DBA | false | 
+| dba.image.repository | DBA image repository | "qmigrator.azurecr.io/webdbaotp" | 
+| dba.image.tag | DBA image tag/version | "986" | 
+| dba.image.pullPolicy | DBA pull policy | "IfNotPresent" | 
+| dba.imagePullSecrets | DBA pull secrets | {} | 
+| dba.annotations | Add extra annotations to the DBA | {} | 
+| dba.podAnnotations | Add extra Pod annotations to the DBA pods | {} | 
+| dba.securityContexts.pod | Default security context for DBA pods | {} | 
+| dba.securityContexts.container | Default security context for DBA containers | {} | 
+| dba.tolerations | Tolerations for DBA pods assignment | {} | 
+| dba.affinity | Affinity for DBA pods assignment (evaluated as a template) | {} | 
+| dba.nodeSelector | Node labels for DBA pods assignment | {} | 
+| dba.labels | Labels for DBA | {} | 
+| dba.schedule | Specifies the cron job schedule using the standard cron syntax | "*/10 * * * *" | 
+| dba.failedJobsHistoryLimit | How many failed executions to track in history. | 2 | 
+| dba.successfulJobsHistoryLimit | How many successful executions to track in history. | 2 | 
+| dba.startingDeadlineSeconds | How many seconds a job is allowed to miss its scheduled start time before it is considered failed | 500 | 
+| dba.concurrencyPolicy | Handle scenario when concurrent jobs are scheduled | Forbid | 
+| dba.restartPolicy | Restart the container keeping the same Pod in Node | Never | 
+| dba.ttlSecondsAfterFinished | Clean up finished Jobs after the specific seconds | 600 | 
+| dba.backoffLimit | Each pod failure is counted towards the specified limit | 2 | 
+| dba.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+| dba.env | Add extra environment variables for the DBA pods | [] | 
+| dba.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
+| dba.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the DBA pods | [] | 
+| dba.extraVolumes | Optionally specify an extra list of additional volumes for all the DBA pods | [] | 
+
+
 ### Airflow Global
 | Property | Description | Default | 
 | :--- | :--- | :--- | 

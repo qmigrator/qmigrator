@@ -14,7 +14,7 @@ imageCredentials:
 
 ## Installing the Ingress Controller
 ingressController:
-  enabled: true
+  enabled: false
 
 ## Required exsiting or new PVC to be created
 shared:
@@ -24,6 +24,23 @@ shared:
 ingress:
   className: "nginx"
   host: "example.internal"
+
+httpRoutes:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-gateway
+  parentRefs:
+    - name: qmig-gateway
+      namespace: ns-1167
+      sectionName: http
+    - name: qmig-gateway
+      namespace: ns-1167
+      sectionName: https-1167
+  ## @param httpRoutes.hostnames hostnames in routes record Default: []
+  hostnames:
+    - "dvora2pg.qmigrator.ai"
+  ## @param httpRoutes.redirectHttp create redirect filter http to https Default: false
+  redirectHttp: true
 
 ## Enabling the Airflow
 airflow:

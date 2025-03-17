@@ -226,10 +226,7 @@ httpRoutes:
   ## @param httpRoutes.labels Add labels for the httpRoutes Default: {}
   labels: {}
   ## @param httpRoutes.parentRefs define route parents to gateway Default: -
-  parentRefs:
-    - name: '{{- include "qmig.gateway.fullname" . }}'
-      namespace: '{{ .Release.Namespace }}'
-      sectionName: http
+  parentRefs: []
   ## @param httpRoutes.hostnames hostnames in routes record Default: []
   hostnames: []
   ## @param httpRoutes.redirectHttp create redirect filter http to https Default: false
@@ -1180,6 +1177,173 @@ perfs:
   ## @param perfs.extraVolumes Optionally specify an extra list of additional volumes for all the Performance pods Default: []
   extraVolumes: []
 
+## Deployment
+## @param deplo.enabled Enable Deployment Default: false
+## @param deplo.image.repository Deployment image repository Default: "qmigrator.azurecr.io/webdeplotp"
+## @param deplo.image.tag Deployment image tag/version Default: "102"
+## @param deplo.image.pullPolicy Deployment pull policy Default: "IfNotPresent"
+## @param deplo.imagePullSecrets Deployment pull secrets Default: {}
+deplo:
+  enabled: false
+  image:
+    repository: qmigrator.azurecr.io/webdeplotp
+    pullPolicy: IfNotPresent
+    tag: "102"
+
+  imagePullSecrets: {}
+
+  ## @param deplo.annotations Add extra annotations to the Deployment Default: {}
+  annotations: {}
+  ## @param deplo.podAnnotations Add extra Pod annotations to the Deployment pods Default: {}
+  podAnnotations: {}
+  ## @param deplo.securityContexts.pod default security context for Deployment pods Default: {}
+  ## @param deplo.securityContexts.container default security context for Deployment containers Default: {}
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  securityContexts:
+    pod: {}
+    container: {}
+  ## @param deplo.tolerations Tolerations for Deployment pods assignment Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+  ## @param deplo.affinity Affinity for Deployment pods assignment (evaluated as a template) Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  ## @param deplo.nodeSelector Node labels for Deployment pods assignment Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param deplo.labels Labels for Deployment Default: {}
+  labels: {}
+
+  ## @param deplo.schedule Specifies the cron job schedule using the standard cron syntax Default: "*/10 * * * *"
+  schedule: "*/10 * * * *"
+  ## @param deplo.failedJobsHistoryLimit How many failed executions to track in history. Default: 2
+  failedJobsHistoryLimit: 2
+  ## @param deplo.successfulJobsHistoryLimit How many successful executions to track in history. Default: 2
+  successfulJobsHistoryLimit: 2
+  ## @param deplo.startingDeadlineSeconds How many seconds a job is allowed to miss its scheduled start time before it is considered failed Default: 500
+  startingDeadlineSeconds: 500
+  ## @param deplo.concurrencyPolicy Handle scenario when concurrent jobs are scheduled Default: "Forbid"
+  concurrencyPolicy: Forbid
+  ## @param deplo.restartPolicy Restart the container keeping the same Pod in Node Default: "Never"
+  restartPolicy: Never
+  ## @param deplo.ttlSecondsAfterFinished Clean up finished Jobs after the specific seconds Default: 600
+  ttlSecondsAfterFinished: 600
+  ## @param deplo.backoffLimit Each pod failure is counted towards the specified limit Default: 2
+  backoffLimit: 2
+ 
+  ## @param deplo.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  resources:
+    requests:
+      cpu: 150m
+      memory: 300Mi
+    limits:
+      cpu: 300m
+      memory: 600Mi
+
+  ## @param deplo.env Add extra environment variables for the Deployment pods Default: []
+  ## Example:
+  ## env:
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
+  env: []
+
+  ## @param deplo.envSecret List of secrets with extra environment variables for all the component pods Default: []
+  ## Example:
+  ## envSecret:
+  ##  - name: ENV_NAME
+  ##    secretRef: SecretName
+  ##    secretKey: SecretKey inside secret
+  envSecret: []
+ 
+  ## @param deplo.extraVolumeMounts Optionally specify an extra list of additional volumeMounts for all the Deployment pods Default: []
+  extraVolumeMounts: []
+  ## @param deplo.extraVolumes Optionally specify an extra list of additional volumes for all the Deployment pods Default: []
+  extraVolumes: []
+
+## DBA
+## @param wbdba.enabled Enable DBA Default: false
+## @param wbdba.image.repository DBA image repository Default: "qmigrator.azurecr.io/webdbaotp"
+## @param wbdba.image.tag DBA image tag/version Default: "18"
+## @param wbdba.image.pullPolicy DBA pull policy Default: "IfNotPresent"
+## @param wbdba.imagePullSecrets DBA pull secrets Default: {}
+wbdba:
+  enabled: false
+  image:
+    repository: qmigrator.azurecr.io/webdbaotp
+    pullPolicy: IfNotPresent
+    tag: "18"
+
+  imagePullSecrets: {}
+
+  ## @param wbdba.annotations Add extra annotations to the DBA Default: {}
+  annotations: {}
+  ## @param wbdba.podAnnotations Add extra Pod annotations to the DBA pods Default: {}
+  podAnnotations: {}
+  ## @param wbdba.securityContexts.pod default security context for DBA pods Default: {}
+  ## @param wbdba.securityContexts.container default security context for DBA containers Default: {}
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  securityContexts:
+    pod: {}
+    container: {}
+  ## @param wbdba.tolerations Tolerations for DBA pods assignment Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+  ## @param wbdba.affinity Affinity for DBA pods assignment (evaluated as a template) Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  ## @param wbdba.nodeSelector Node labels for DBA pods assignment Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param wbdba.labels Labels for DBA Default: {}
+  labels: {}
+
+  ## @param wbdba.schedule Specifies the cron job schedule using the standard cron syntax Default: "*/10 * * * *"
+  schedule: "*/10 * * * *"
+  ## @param wbdba.failedJobsHistoryLimit How many failed executions to track in history. Default: 2
+  failedJobsHistoryLimit: 2
+  ## @param wbdba.successfulJobsHistoryLimit How many successful executions to track in history. Default: 2
+  successfulJobsHistoryLimit: 2
+  ## @param wbdba.startingDeadlineSeconds How many seconds a job is allowed to miss its scheduled start time before it is considered failed Default: 500
+  startingDeadlineSeconds: 500
+  ## @param wbdba.concurrencyPolicy Handle scenario when concurrent jobs are scheduled Default: "Forbid"
+  concurrencyPolicy: Forbid
+  ## @param wbdba.restartPolicy Restart the container keeping the same Pod in Node Default: "Never"
+  restartPolicy: Never
+  ## @param wbdba.ttlSecondsAfterFinished Clean up finished Jobs after the specific seconds Default: 600
+  ttlSecondsAfterFinished: 600
+  ## @param wbdba.backoffLimit Each pod failure is counted towards the specified limit Default: 2
+  backoffLimit: 2
+ 
+  ## @param wbdba.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  resources:
+    requests:
+      cpu: 150m
+      memory: 300Mi
+    limits:
+      cpu: 300m
+      memory: 600Mi
+
+  ## @param wbdba.env Add extra environment variables for the DBA pods Default: []
+  ## Example:
+  ## env:
+  ## - name: ENV_NAME
+  ##   value: ENV_VALUE
+  env: []
+
+  ## @param wbdba.envSecret List of secrets with extra environment variables for all the component pods Default: []
+  ## Example:
+  ## envSecret:
+  ##  - name: ENV_NAME
+  ##    secretRef: SecretName
+  ##    secretKey: SecretKey inside secret
+  envSecret: []
+ 
+  ## @param wbdba.extraVolumeMounts Optionally specify an extra list of additional volumeMounts for all the DBA pods Default: []
+  extraVolumeMounts: []
+  ## @param wbdba.extraVolumes Optionally specify an extra list of additional volumes for all the DBA pods Default: []
+  extraVolumes: []
 
 ## Airflow
 ## @param airflow.enabled Enable Airflow Default: false

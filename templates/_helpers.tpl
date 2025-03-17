@@ -120,6 +120,12 @@ All specification for Gateways Controller
 {{- end -}}
 
 
+{{- define "qmig.httpRoutes.parentRefs" }}
+- name: {{ include "qmig.gateway.fullname" . | quote }}
+  namespace: {{ .Release.Namespace }}
+  sectionName: http
+{{- end }}
+
 {{/*
 All specification for app module
 */}}
@@ -560,6 +566,89 @@ component: {{ include "qmig.perfs.name" . }}
   subPath: "tmp"
   name: {{ .pvctemp }}
 {{- end }}
+
+
+
+{{/*
+All specification for deplo module
+*/}}
+
+{{- define "qmig.deplo.name" -}}
+{{- printf "%s" "deplo" -}}
+{{- end -}}
+
+{{- define "qmig.deplo.selectorLabels" -}}
+component: {{ include "qmig.deplo.name" . }}
+{{ include "qmig.selectorLabels" . }}
+{{- with .Values.deplo.labels }}
+{{ toYaml . | print }}
+{{- end }}
+{{- end -}}
+
+{{- define "qmig.deplo.labels" -}}
+{{ include "qmig.deplo.selectorLabels" . }}
+{{ include "qmig.labels" . }}
+{{- end -}}
+
+{{- define "qmig.deplo.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "qmig.deplo.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "qmig.deplo.volumeMounts" }}
+- mountPath: /mnt/pypod
+  {{- if .Values.shared.persistentVolume.subPath }}
+  subPath: {{ .Values.shared.persistentVolume.subPath }}
+  {{- end }}
+  name: {{ .pvcname }}
+- mountPath: /app/tmp
+  subPath: "tmp-e"
+  name: {{ .pvctemp }}
+- mountPath: /tmp
+  subPath: "tmp"
+  name: {{ .pvctemp }}
+{{- end }}
+
+
+
+{{/*
+All specification for wbdba module
+*/}}
+
+{{- define "qmig.wbdba.name" -}}
+{{- printf "%s" "wbdba" -}}
+{{- end -}}
+
+{{- define "qmig.wbdba.selectorLabels" -}}
+component: {{ include "qmig.wbdba.name" . }}
+{{ include "qmig.selectorLabels" . }}
+{{- with .Values.wbdba.labels }}
+{{ toYaml . | print }}
+{{- end }}
+{{- end -}}
+
+{{- define "qmig.wbdba.labels" -}}
+{{ include "qmig.wbdba.selectorLabels" . }}
+{{ include "qmig.labels" . }}
+{{- end -}}
+
+{{- define "qmig.wbdba.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "qmig.wbdba.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "qmig.wbdba.volumeMounts" }}
+- mountPath: /mnt/pypod
+  {{- if .Values.shared.persistentVolume.subPath }}
+  subPath: {{ .Values.shared.persistentVolume.subPath }}
+  {{- end }}
+  name: {{ .pvcname }}
+- mountPath: /app/tmp
+  subPath: "tmp-e"
+  name: {{ .pvctemp }}
+- mountPath: /tmp
+  subPath: "tmp"
+  name: {{ .pvctemp }}
+{{- end }}
+
 
 
 {{/*
