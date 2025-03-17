@@ -110,33 +110,35 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | secret.data.PROJECT_NAME | Name of project | null | 
 | secret.data.POSTGRES_PASSWORD | Admin Password for metadata DB | null | 
 | secret.data.REDIS_PASS | Admin Password for Cache | null | 
-| imageCredentials.create | create docker pull secret | true 
+| imageCredentials.create | Create docker pull secret | true | 
 | imageCredentials.secretName | Name for docker secret | "" (name: qmig-docker) | 
 | imageCredentials.annotations | Annotations for docker secret | {} | 
 | imageCredentials.labels | Labels for docker secret | {} | 
-| imageCredentials.data.registry | Server/Registry host. | qmigrator.azurecr.io | 
+| imageCredentials.data.registry | Server/Registry host | qmigrator.azurecr.io | 
 | imageCredentials.data.username | Username for given docker host | null | 
 | imageCredentials.data.password | Password for given docker host | null | 
+
 ### Shared Volume
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | shared.persistentVolume.enabled | If false, use emptyDir | true | 
 | shared.persistentVolume.accessModes | How should the volume be accessible in App | ReadWriteMany | 
 | shared.persistentVolume.annotations | Persistent Volume Claim annotations | {} | 
-| shared.persistentVolume.labels | Labels for docker persistentVolume | {} | 
+| shared.persistentVolume.labels | Labels for persistentVolume | {} | 
 | shared.persistentVolume.existingClaim | Name of PVC created manually before volume | "" | 
 | shared.persistentVolume.subPath | Subdirectory of data Persistent Volume to mount | "" | 
 | shared.persistentVolume.size | Persistent Volume size | 5Gi | 
 | shared.persistentVolume.storageClass | Persistent Volume Storage Class | "" (Default from Kubernetes) | 
 | shared.persistentVolume.volumeBindingMode | Persistent Volume Binding Mode | "" (Default from Kubernetes) | 
-| shared.folderPath.extraSubpath | subpath for Extra folder in a shared volume | "extra" | 
-| shared.folderPath.dagsSubpath | subpath for Dag's folder of airflow in a shared volume | "dags" | 
-| shared.folderPath.logsSubpath | subpath for logs folder of airflow in a shared volume | "logs" | 
+| shared.folderPath.extraSubpath | Subpath for Extra folder in a shared volume | "extra" | 
+| shared.folderPath.dagsSubpath | Subpath for Dag's folder of airflow in a shared volume | "dags" | 
+| shared.folderPath.logsSubpath | Subpath for logs folder of airflow in a shared volume | "logs" | 
+
 ### Ingress Controller
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | ingressController.enabled | Whether or not to install the ingressController | false | 
-| ingressController.provider | The name of the ingressController provider either nginx-inc or kubernetes |"kubernetes" | 
+| ingressController.provider | The name of the ingressController provider either nginx-inc or kubernetes | "kubernetes" | 
 | ingressController.name | The name of the ingressController to use | "" (name: nginx-ingress) | 
 | ingressController.labels | Labels for ingressController | {} | 
 | ingressController.controllerImage.repository | Ingress controller image repository | qmigrator.azurecr.io/ingress-nginx/controller | 
@@ -147,12 +149,13 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | ingressController.image.tag | Ingress image tag/version for Nginx Inc | "3.6.1" | 
 | ingressController.imagePullSecrets | Ingress Controller component pull secrets | {} | 
 | ingressController.isDefaultClass | Set Ingress class as default to cluster | true | 
-| ingressController.securityContexts.pod | default security context for Ingress Controller pods | {} | 
-| ingressController.securityContexts.container | default security context for Ingress Controller containers | | 
+| ingressController.securityContexts.pod | Default security context for Ingress Controller pods | {} | 
+| ingressController.securityContexts.container | Default security context for Ingress Controller containers | {} | 
 | ingressController.tolerations | Tolerations for Ingress Controller pods assignment | {} | 
 | ingressController.affinity | Affinity for Ingress Controller pods assignment (evaluated as a template) | {} | 
 | ingressController.nodeSelector | Node labels for Ingress Controller pods assignment | {} | 
-| ingressController.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) |
+| ingressController.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+
 ### Ingress
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -162,24 +165,27 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | ingress.labels | Add labels for the Ingress | {} | 
 | ingress.host | Default host for the ingress record | "" | 
 | ingress.tls | TLS configuration for additional hostname(s) to be covered with this ingress record | {} | 
+
 ### Gateway
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
-| gateway.enabled | Enable create gateway | false
-| gateway.className | GatewayClass that will be used to implement the gateway | "nginx"
-| gateway.annotations | Additional annotations for the gateway resource | {}
-| gateway.labels | Add labels for the gateway | {}
-| gateway.listeners | Add listerners for the gateway | - 
+| gateway.enabled | Enable create gateway | false | 
+| gateway.className | GatewayClass that will be used to implement the gateway | "nginx" | 
+| gateway.annotations | Additional annotations for the gateway resource | {} | 
+| gateway.labels | Add labels for the gateway | {} | 
+| gateway.listeners | Add listeners for the gateway | [] | 
+
 ### HTTPRoute
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
-| httpRoutes.enabled | Create the routes on gateway | false
-| httpRoutes.className | GatewayClass name | "nginx"
-| httpRoutes.annotations | Additional annotations for the httpRoutes | {}
-| httpRoutes.labels | Add labels for the httpRoutes | {}
-| httpRoutes.parentRefs | define route parents to gateway | -
-| httpRoutes.hostnames | hostnames in routes record | []
-| httpRoutes.redirectHttp | create redirect filter http to https | false
+| httpRoutes.enabled | Create the routes on gateway | false | 
+| httpRoutes.className | GatewayClass name | "nginx" | 
+| httpRoutes.annotations | Additional annotations for the httpRoutes | {} | 
+| httpRoutes.labels | Add labels for the httpRoutes | {} | 
+| httpRoutes.parentRefs | Define route parents to gateway | [] | 
+| httpRoutes.hostnames | Hostnames in routes record | [] | 
+| httpRoutes.redirectHttp | Create redirect filter http to https | false | 
+
 ### Service Account
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -188,6 +194,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | serviceAccount.annotations | Additional custom annotations for the ServiceAccount | {} | 
 | serviceAccount.labels | Labels for ServiceAccount | {} | 
 | rbac.create | Create Role and RoleBinding | true | 
+
 ### App Components
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -201,8 +208,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | app.livenessProbe.enabled | Enable livenessProbe on App Component containers | true | 
 | app.annotations | Add extra annotations to the App Component | {} | 
 | app.podAnnotations | Add extra Pod annotations to the App Component pods | {} | 
-| app.securityContexts.pod | default security context for App Component pods | {} | 
-| app.securityContexts.container | default security context for App Component containers | {} | 
+| app.securityContexts.pod | Default security context for App Component pods | {} | 
+| app.securityContexts.container | Default security context for App Component containers | {} | 
 | app.tolerations | Tolerations for App Component pods assignment | {} | 
 | app.affinity | Affinity for App Component pods assignment (evaluated as a template) | {} | 
 | app.nodeSelector | Node labels for App Component pods assignment | {} | 
@@ -216,6 +223,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | app.autoscaling.maxReplicas | Configure a maximum amount of pods | 2 | 
 | app.autoscaling.targetCPUUtilizationPercentage | Define the CPU target to trigger the scaling actions (utilization percentage) | 80 | 
 | app.autoscaling.targetMemoryUtilizationPercentage | Define the memory target to trigger the scaling actions (utilization percentage) | 80 | 
+
 ### Engine Components
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -229,8 +237,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | eng.livenessProbe.enabled | Enable livenessProbe on Engine component containers | true | 
 | eng.annotations | Add extra annotations to the Engine component | {} | 
 | eng.podAnnotations | Add extra Pod annotations to the Engine component pods | {} | 
-| eng.securityContexts.pod | default security context for Engine component pods | {} | 
-| eng.securityContexts.container | default security context for Engine component containers | {} | 
+| eng.securityContexts.pod | Default security context for Engine component pods | {} | 
+| eng.securityContexts.container | Default security context for Engine component containers | {} | 
 | eng.tolerations | Tolerations for Engine component pods assignment | {} | 
 | eng.affinity | Affinity for Engine component pods assignment (evaluated as a template) | {} | 
 | eng.nodeSelector | Node labels for Engine component pods assignment | {} | 
@@ -248,13 +256,14 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | eng.autoscaling.targetMemoryUtilizationPercentage | Define the memory target to trigger the scaling actions (utilization percentage) | 80 | 
 | eng.env | Add extra environment variables for the Engine component pods | [TZ] | 
 | eng.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
+
 ### Metadata Database
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
-| db.enabled Provision the postgres deployment | true |
-| db.dbConnection.hostname Provide the hostname if used external connection | "" (Auto Generates) |
-| db.dbConnection.username username for connection to DB | "postgres" |
-| db.dbConnection.port port for connection to DB | "5432" |
+| db.enabled | Provision the postgres deployment | true | 
+| db.dbConnection.hostname | Provide the hostname if used external connection | "" (Auto Generates) | 
+| db.dbConnection.username | Username for connection to DB | "postgres" | 
+| db.dbConnection.port | Port for connection to DB | "5432" | 
 | db.name | Name for DB component | "db" | 
 | db.replicas | Number of DB component replicas | 1 | 
 | db.strategy | Update strategy for DB component pods | "Recreate" | 
@@ -265,17 +274,17 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | db.dbshConfig.stringOverride | Override shell script to be run on the initial time of DB | "" | 
 | db.annotations | Add extra annotations to the DB component | {} | 
 | db.podAnnotations | Add extra Pod annotations to the DB component pods | {} | 
-| db.securityContexts.pod | default security context for DB Component pods | {} | 
-| db.securityContexts.container | default security context for DB Component containers | {} | 
+| db.securityContexts.pod | Default security context for DB Component pods | {} | 
+| db.securityContexts.container | Default security context for DB Component containers | {} | 
 | db.tolerations | Tolerations for DB component pods assignment | {} | 
 | db.affinity | Affinity for DB component pods assignment (evaluated as a template) | {} | 
 | db.nodeSelector | Node labels for DB component pods assignment | {} | 
 | db.labels | Labels for DB Component | {} | 
 | db.initContainers.image.repository | Load DB image repository | "qmigrator.azurecr.io/qmigdb-ini" | 
 | db.initContainers.image.tag | Load DB image tag/version | "1164" | 
-| db.initContainers.resources | Set Init container requests and limits for different resources like CPU or memory | 
+| db.initContainers.resources | Set Init container requests and limits for different resources like CPU or memory | {} | 
 | db.persistentVolume.enabled | If false, use emptyDir | true | 
-| db.persistentVolume.accessModes | How should the volume accessible in App | ReadWriteOnce | 
+| db.persistentVolume.accessModes | How should the volume be accessible in App | ReadWriteOnce | 
 | db.persistentVolume.annotations | Persistent Volume Claim annotations | {} | 
 | db.persistentVolume.existingClaim | Name of PVC created manually before volume | "" | 
 | db.persistentVolume.subPath | Subdirectory of data Persistent Volume to mount | "" | 
@@ -290,6 +299,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | db.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 | db.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the DB component pods | [] | 
 | db.extraVolumes | Optionally specify an extra list of additional volumes for all the DB component pods | [] | 
+
 ### Cache Components
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -304,8 +314,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | msg.keyDBConfig.stringOverride | Override shell script to be run on the initial time of Cache | "" | 
 | msg.annotations | Add extra annotations to the Cache component | {} | 
 | msg.podAnnotations | Add extra Pod annotations to the Cache component pods | {} | 
-| msg.securityContexts.pod | default security context for Cache Component pods | {} | 
-| msg.securityContexts.container | default security context for Cache Component containers | {} | 
+| msg.securityContexts.pod | Default security context for Cache Component pods | {} | 
+| msg.securityContexts.container | Default security context for Cache Component containers | {} | 
 | msg.tolerations | Tolerations for Cache component pods assignment | {} | 
 | msg.affinity | Affinity for Cache component pods assignment (evaluated as a template) | {} | 
 | msg.nodeSelector | Node labels for Cache component pods assignment | {} | 
@@ -323,11 +333,12 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | msg.service.port | Cache component service HTTP port | 6378 | 
 | msg.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
 | msg.master.enabled | Run Cache component as master node | true | 
-| msg.auth.enabled | Enabled authentication with password on Cache component | true | 
+| msg.auth.enabled | Enable authentication with password on Cache component | true | 
 | msg.env | Add extra environment variables for the Cache component pods | [] | 
 | msg.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 | msg.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Cache component pods | [] | 
 | msg.extraVolumes | Optionally specify an extra list of additional volumes for all the Cache component pods | [] | 
+
 ### Assessment
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -338,8 +349,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | asses.imagePullSecrets | Assessment pull secrets | {} | 
 | asses.annotations | Add extra annotations to the Assessment | {} | 
 | asses.podAnnotations | Add extra Pod annotations to the Assessment pods | {} | 
-| asses.securityContexts.pod | default security context for Assessment pods | {} | 
-| asses.securityContexts.container | default security context for Assessment containers | {} | 
+| asses.securityContexts.pod | Default security context for Assessment pods | {} | 
+| asses.securityContexts.container | Default security context for Assessment containers | {} | 
 | asses.tolerations | Tolerations for Assessment pods assignment | {} | 
 | asses.affinity | Affinity for Assessment pods assignment (evaluated as a template) | {} | 
 | asses.nodeSelector | Node labels for Assessment pods assignment | {} | 
@@ -356,7 +367,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | asses.env | Add extra environment variables for the Assessment pods | [] | 
 | asses.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 | asses.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Assessment pods | [] | 
-| asses.extraVolumes | Optionally specify an extra list of additional volumes for all the Assessment pods | [] | 
+| asses.extraVolumes | Optionally specify an extra list of additional volumes for all the Assessment pods | [] |
+
 ### Conversion
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -367,8 +379,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | convs.imagePullSecrets | Conversion pull secrets | {} | 
 | convs.annotations | Add extra annotations to the Conversion | {} | 
 | convs.podAnnotations | Add extra Pod annotations to the Conversion pods | {} | 
-| convs.securityContexts.pod | default security context for Conversion pods | {} | 
-| convs.securityContexts.container | default security context for Conversion containers | {} | 
+| convs.securityContexts.pod | Default security context for Conversion pods | {} | 
+| convs.securityContexts.container | Default security context for Conversion containers | {} | 
 | convs.tolerations | Tolerations for Conversion pods assignment | {} | 
 | convs.affinity | Affinity for Conversion pods assignment (evaluated as a template) | {} | 
 | convs.nodeSelector | Node labels for Conversion pods assignment | {} | 
@@ -386,6 +398,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | convs.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 | convs.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Conversion pods | [] | 
 | convs.extraVolumes | Optionally specify an extra list of additional volumes for all the Conversion pods | [] | 
+
 ### Migration
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -396,8 +409,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | migrt.imagePullSecrets | Migration pull secrets | {} | 
 | migrt.annotations | Add extra annotations to the Migration | {} | 
 | migrt.podAnnotations | Add extra Pod annotations to the Migration pods | {} | 
-| migrt.securityContexts.pod | default security context for Migration pods | {} | 
-| migrt.securityContexts.container | default security context for Migration containers | {} | 
+| migrt.securityContexts.pod | Default security context for Migration pods | {} | 
+| migrt.securityContexts.container | Default security context for Migration containers | {} | 
 | migrt.tolerations | Tolerations for Migration pods assignment | {} | 
 | migrt.affinity | Affinity for Migration pods assignment (evaluated as a template) | {} | 
 | migrt.nodeSelector | Node labels for Migration pods assignment | {} | 
@@ -415,6 +428,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | migrt.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 | migrt.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Migration pods | [] | 
 | migrt.extraVolumes | Optionally specify an extra list of additional volumes for all the Migration pods | [] | 
+
 ### Testing
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -425,8 +439,8 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | tests.imagePullSecrets | Testing pull secrets | {} | 
 | tests.annotations | Add extra annotations to the Testing | {} | 
 | tests.podAnnotations | Add extra Pod annotations to the Testing pods | {} | 
-| tests.securityContexts.pod | default security context for Testing pods | {} | 
-| tests.securityContexts.container | default security context for Testing containers | {} | 
+| tests.securityContexts.pod | Default security context for Testing pods | {} | 
+| tests.securityContexts.container | Default security context for Testing containers | {} | 
 | tests.tolerations | Tolerations for Testing pods assignment | {} | 
 | tests.affinity | Affinity for Testing pods assignment (evaluated as a template) | {} | 
 | tests.nodeSelector | Node labels for Testing pods assignment | {} | 
@@ -443,19 +457,20 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | tests.env | Add extra environment variables for the Testing pods | [] | 
 | tests.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 | tests.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Testing pods | [] | 
-| tests.extraVolumes | Optionally specify an extra list of additional volumes for all the Testing pods | [] | 
+| tests.extraVolumes | Optionally specify an extra list of additional volumes for all the Testing pods | [] |
+
 ### Performance
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
 | perfs.enabled | Enable Performance | false | 
 | perfs.image.repository | Performance image repository | "qmigrator.azurecr.io/webperfotp" | 
 | perfs.image.tag | Performance image tag/version | "985" | 
-| perfs.image.pullPolicy | Performance pull policy | "qmigrator.azurecr.io/webperfotp" | 
+| perfs.image.pullPolicy | Performance pull policy | "IfNotPresent" | 
 | perfs.imagePullSecrets | Performance pull secrets | {} | 
 | perfs.annotations | Add extra annotations to the Performance | {} | 
 | perfs.podAnnotations | Add extra Pod annotations to the Performance pods | {} | 
-| perfs.securityContexts.pod | default security context for Performance pods | {} | 
-| perfs.securityContexts.container | default security context for Performance containers | {} | 
+| perfs.securityContexts.pod | Default security context for Performance pods | {} | 
+| perfs.securityContexts.container | Default security context for Performance containers | {} | 
 | perfs.tolerations | Tolerations for Performance pods assignment | {} | 
 | perfs.affinity | Affinity for Performance pods assignment (evaluated as a template) | {} | 
 | perfs.nodeSelector | Node labels for Performance pods assignment | {} | 
@@ -473,6 +488,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | perfs.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
 | perfs.extraVolumeMounts | Optionally specify an extra list of additional volumeMounts for all the Performance pods | [] | 
 | perfs.extraVolumes | Optionally specify an extra list of additional volumes for all the Performance pods | [] | 
+
 ### Airflow Global
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -498,6 +514,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.labels | Labels for Airflow | {} | 
 | airflow.env | Add extra environment variables for the Airflow pods | [] | 
 | airflow.envSecret | List of secrets with extra environment variables for all the component pods | [] | 
+
 #### Airflow Secret
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -506,6 +523,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.secret.data.airflow_fernet_key | Random generated key for airflow | null | 
 | airflow.secret.data.airflow_password | Airflow login password | null | 
 | airflow.secret.data.connection | Connection string for Airflow metadata DB | null | 
+
 #### Airflow Webserver
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -515,6 +533,9 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.webserver.podAnnotations | Add extra Pod annotations to the Airflow Webserver pods | {} | 
 | airflow.webserver.securityContexts.pod | default security context for Webserver pods | {} | 
 | airflow.webserver.securityContexts.container | default security context for Webserver containers | {} | 
+| airflow.webserver.tolerations | Tolerations for Airflow Webserver pods | {} | 
+| airflow.webserver.affinity | Affinity for Airflow Webserver pods (evaluated as a template) | {} | 
+| airflow.webserver.nodeSelector | Node labels for Airflow Webserver pods | {} | 
 | airflow.webserver.livenessProbe | livenessProbe on Airflow webserver | 
 | airflow.webserver.readinessProbe | readinessProbe on Airflow webserver | 
 | airflow.webserver.startupProbe | startupProbe on Airflow webserver | 
@@ -524,6 +545,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.webserver.service.annotations | Additional custom annotations for Airflow Webserver service | {} | 
 | airflow.webserver.service.type | Airflow Webserver service type | "ClusterIP" | 
 | airflow.webserver.service.port | Airflow Webserver service HTTP port | 8080 | 
+
 #### Airflow Scheduler
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -533,12 +555,16 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.scheduler.podAnnotations | Add extra Pod annotations to the Airflow Scheduler pods | {} | 
 | airflow.scheduler.securityContexts.pod | default security context for Scheduler pods | {} | 
 | airflow.scheduler.securityContexts.container | default security context for Scheduler containers | {} | 
+| airflow.scheduler.tolerations | Tolerations for Airflow Scheduler pods | {} | 
+| airflow.scheduler.affinity | Affinity for Airflow Scheduler pods (evaluated as a template) | {} | 
+| airflow.scheduler.nodeSelector | Node labels for Airflow Scheduler pods | {} | 
 | airflow.scheduler.livenessProbe | livenessProbe on Airflow Scheduler | 
 | airflow.scheduler.readinessProbe | readinessProbe on Airflow Scheduler | 
 | airflow.scheduler.startupProbe | startupProbe on Airflow Scheduler | 
 | airflow.scheduler.command | Command to use when running the Airflow scheduler | ~ | 
 | airflow.scheduler.args | Args to use when running the Airflow scheduler | ["bash", "-c", "exec airflow scheduler"] | 
 | airflow.scheduler.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+
 #### Airflow Worker
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -547,7 +573,11 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.worker.podAnnotations | Add extra Pod annotations to the Airflow Worker pods | {} | 
 | airflow.worker.securityContexts.pod | default security context for Worker pods | {} | 
 | airflow.worker.securityContexts.container | default security context for Worker containers | {} | 
+| airflow.worker.tolerations | Tolerations for Airflow Worker pods | {} | 
+| airflow.worker.affinity | Affinity for Airflow Worker pods (evaluated as a template) | {} | 
+| airflow.worker.nodeSelector | Node labels for Airflow Worker pods | {} | 
 | airflow.worker.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+
 #### Init-container to wait migration
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -557,6 +587,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.waitForMigrations.podAnnotations | Add extra Pod annotations to the waitForMigrations pods | {} | 
 | airflow.waitForMigrations.securityContexts.container | default security context for waitForMigrations containers | {} | 
 | airflow.waitForMigrations.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+
 #### Airflow Create User Job
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -566,7 +597,11 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.createUserJob.useHelmHooks | Helm hook for job pod | true | 
 | airflow.createUserJob.securityContexts.pod | default security context for createUserJob pods | {} | 
 | airflow.createUserJob.securityContexts.container | default security context for createUserJob containers | {} | 
+| airflow.createUserJob.tolerations | Tolerations for Airflow createUserJob pods | {} | 
+| airflow.createUserJob.affinity | Affinity for Airflow createUserJob pods (evaluated as a template) | {} | 
+| airflow.createUserJob.nodeSelector | Node labels for Airflow createUserJob pods | {} | 
 | airflow.createUserJob.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+
 #### Airflow DB Migration Job
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
@@ -577,4 +612,7 @@ https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
 | airflow.migrateDatabaseJob.useHelmHooks | Helm hook for job pod | true | 
 | airflow.migrateDatabaseJob.securityContexts.pod | default security context for migrateDatabaseJob pod | {} | 
 | airflow.migrateDatabaseJob.securityContexts.container | default security context for migrateDatabaseJob containers | {} | 
-| airflow.migrateDatabaseJob.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) | 
+| airflow.migrateDatabaseJob.tolerations | Tolerations for Airflow migrateDatabaseJob pods | {} | 
+| airflow.migrateDatabaseJob.affinity | Affinity for Airflow migrateDatabaseJob pods (evaluated as a template) | {} | 
+| airflow.migrateDatabaseJob.nodeSelector | Node labels for Airflow migrateDatabaseJob pods | {} | 
+| airflow.migrateDatabaseJob.resources | Set container requests and limits for different resources like CPU or memory (essential for production workloads) |

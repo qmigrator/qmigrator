@@ -1364,6 +1364,16 @@ airflow:
       pod: {}
       container: {}
 
+    ## @param airflow.webserver.tolerations Tolerations for Airflow webserver pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    tolerations: []
+    ## @param airflow.webserver.affinity Affinity for Airflow webserver pods (evaluated as a template) Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+    ## @param airflow.webserver.nodeSelector Node labels for Airflow webserver pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+    nodeSelector: {}
+
     ## Configure extra options for Airflow containers' liveness, readiness, and startup
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
     ## @param airflow.webserver.livenessProbe livenessProbe on Airflow webserver
@@ -1413,6 +1423,16 @@ airflow:
       pod: {}
       container: {}
 
+    ## @param airflow.scheduler.tolerations Tolerations for Airflow scheduler pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    tolerations: []
+    ## @param airflow.scheduler.affinity Affinity for Airflow scheduler pods (evaluated as a template) Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+    ## @param airflow.scheduler.nodeSelector Node labels for Airflow scheduler pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+    nodeSelector: {}
+
     ## Configure extra options for Airflow containers' liveness, readiness, and startup
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
     ## @param airflow.scheduler.livenessProbe livenessProbe on Airflow Scheduler
@@ -1450,6 +1470,16 @@ airflow:
     securityContexts:
       pod: {}
       container: {}
+
+    ## @param airflow.worker.tolerations Tolerations for Airflow worker pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    tolerations: []
+    ## @param airflow.worker.affinity Affinity for Airflow worker pods (evaluated as a template) Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+    ## @param airflow.worker.nodeSelector Node labels for Airflow worker pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+    nodeSelector: {}
     
     ## @param airflow.worker.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
     resources:
@@ -1501,6 +1531,16 @@ airflow:
       pod: {}
       container: {}
 
+    ## @param airflow.createUserJob.tolerations Tolerations for Airflow createUserJob pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    tolerations: []
+    ## @param airflow.createUserJob.affinity Affinity for Airflow createUserJob pods (evaluated as a template) Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+    ## @param airflow.createUserJob.nodeSelector Node labels for Airflow createUserJob pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+    nodeSelector: {}
+
     ## @param airflow.createUserJob.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
     resources:
       requests:
@@ -1529,6 +1569,16 @@ airflow:
       pod: {}
       container: {}
     
+    ## @param airflow.migrateDatabaseJob.tolerations Tolerations for Airflow migrateDatabaseJob pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    tolerations: []
+    ## @param airflow.migrateDatabaseJob.affinity Affinity for Airflow migrateDatabaseJob pods (evaluated as a template) Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+    ## @param airflow.migrateDatabaseJob.nodeSelector Node labels for Airflow migrateDatabaseJob pods Default: {}
+    ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+    nodeSelector: {}
+
     ## @param airflow.migrateDatabaseJob.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
     resources:
       requests:

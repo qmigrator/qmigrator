@@ -1,7 +1,7 @@
 {{- if .Values.airflow.enabled }}
-{{- $nodeSelector := .Values.airflow.nodeSelector }}
-{{- $affinity := .Values.airflow.affinity }}
-{{- $tolerations := .Values.airflow.tolerations }}
+{{- $nodeSelector := .Values.airflow.worker.nodeSelector | default .Values.airflow.nodeSelector }}
+{{- $affinity := .Values.airflow.worker.affinity | default .Values.airflow.affinity }}
+{{- $tolerations := .Values.airflow.worker.tolerations | default .Values.airflow.tolerations }}
 {{- $securityContext := include "airflow.podSecurityContext" (list . .Values.airflow.worker) }}
 {{- $containerSecurityContext := include "airflow.containerSecurityContext" (list . .Values.airflow.worker) }}
 {{- $safeToEvict := dict "cluster-autoscaler.kubernetes.io/safe-to-evict" (.Values.airflow.safeToEvict | toString) }}

@@ -1,7 +1,7 @@
 {{- if .Values.airflow.enabled }}
-{{- $nodeSelector := .Values.airflow.nodeSelector }}
-{{- $affinity := .Values.airflow.affinity }}
-{{- $tolerations := .Values.airflow.tolerations }}
+{{- $nodeSelector := .Values.airflow.createUserJob.nodeSelector | default .Values.airflow.nodeSelector }}
+{{- $affinity := .Values.airflow.createUserJob.affinity | default .Values.airflow.affinity }}
+{{- $tolerations := .Values.airflow.createUserJob.tolerations | default .Values.airflow.tolerations }}
 {{- $securityContext := include "airflow.podSecurityContext" (list . .Values.airflow.createUserJob) }}
 {{- $containerSecurityContext := include "airflow.containerSecurityContext" (list . .Values.airflow.createUserJob) }}
 {{- $pvcTemp := printf "%s-%s" (include "qmig.airflow.fullname" .) "empty" -}}

@@ -1,7 +1,7 @@
 {{- if .Values.airflow.enabled }}
-{{- $nodeSelector := .Values.airflow.nodeSelector }}
-{{- $affinity := .Values.airflow.affinity }}
-{{- $tolerations := .Values.airflow.tolerations }}
+{{- $nodeSelector := .Values.airflow.webserver.nodeSelector | default .Values.airflow.nodeSelector }}
+{{- $affinity := .Values.airflow.webserver.affinity | default .Values.airflow.affinity }}
+{{- $tolerations := .Values.airflow.webserver.tolerations | default .Values.airflow.tolerations }}
 {{- $securityContext := include "airflow.podSecurityContext" (list . .Values.airflow.webserver) }}
 {{- $containerSecurityContext := include "airflow.containerSecurityContext" (list . .Values.airflow.webserver) }}
 {{- $containerSecurityContextWaitForMigrations := include "containerSecurityContext" (list . .Values.airflow.waitForMigrations) }}

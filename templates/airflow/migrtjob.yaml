@@ -1,7 +1,7 @@
 {{- if and .Values.airflow.enabled .Values.airflow.migrateDatabaseJob.enabled }}
-{{- $nodeSelector := .Values.airflow.nodeSelector }}
-{{- $affinity := .Values.airflow.affinity }}
-{{- $tolerations := .Values.airflow.tolerations }}
+{{- $nodeSelector := .Values.airflow.migrateDatabaseJob.nodeSelector | default .Values.airflow.nodeSelector }}
+{{- $affinity := .Values.airflow.migrateDatabaseJob.affinity | default .Values.airflow.affinity }}
+{{- $tolerations := .Values.airflow.migrateDatabaseJob.tolerations | default .Values.airflow.tolerations }}
 {{- $securityContext := include "airflow.podSecurityContext" (list . .Values.airflow.migrateDatabaseJob) }}
 {{- $containerSecurityContext := include "airflow.containerSecurityContext" (list . .Values.airflow.migrateDatabaseJob) }}
 {{- $pvcTemp := printf "%s-%s" (include "qmig.airflow.fullname" .) "empty" -}}
