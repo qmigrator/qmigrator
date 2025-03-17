@@ -4,7 +4,7 @@ description: A Helm chart for qmigratorrator Application to be deployed in Kuber
 
 type: application
 
-version: 0.1.6
+version: 0.1.7
 appVersion: "1.0.0"
 icon: "https://qmigrator.ai/assets/logo-8487ae7c.png"
 
