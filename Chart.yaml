@@ -4,11 +4,10 @@ description: A Helm chart for Qmigrator admin to be deployed in Kubernetes
 
 type: application
 
-version: 0.1.1
+version: 0.1.2
 appVersion: "1.0.0"
 icon: "https://qmigrator.ai/assets/logo-8487ae7c.png"
 
-home: https://qmigrator.github.io/qmigrator
 home: https://qmigrator.github.io/qmigrator
 
 sources:
