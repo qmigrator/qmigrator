@@ -105,7 +105,7 @@ All specification for Gateways Controller
 {{- end -}}
 
 {{- define "qmig.gateway.fullname" -}}
-{{- printf "%s" .Values.gateway.name | default  (printf "%s-gateway" .Release.Name) -}}
+{{- printf "%s" .Values.gateway.name | default  (printf "%s-admin-gateway" .Release.Name) -}}
 {{- end -}}
 
 {{- define "qmig.httpRoutes.labels" -}}
@@ -119,6 +119,12 @@ All specification for Gateways Controller
 {{- printf "%s" .Values.httpRoutes.name | default  (printf "%s-routes" .Release.Name) -}}
 {{- end -}}
 
+
+{{- define "qmig.httpRoutes.parentRefs" }}
+- name: {{ include "qmig.gateway.fullname" . | quote }}
+  namespace: {{ .Release.Namespace }}
+  sectionName: http
+{{- end }}
 
 {{/*
 All specification for app module

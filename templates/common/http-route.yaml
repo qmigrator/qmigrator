@@ -1,4 +1,4 @@
-{{- if .Values.gateway.enabled }}
+{{- if .Values.httpRoutes.enabled }}
 {{- $engSvcPort := .Values.eng.service.port -}}
 {{- $appSvcPort := .Values.app.service.port -}}
 {{- $engfullName := include "qmig.eng.fullname" . -}}
@@ -15,12 +15,11 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- $Global := . }}
   parentRefs:
-  {{- range $k, $v := .Values.httpRoutes.parentRefs }}
-  - name: {{ tpl $v.name $Global }}
-    namespace: {{ tpl $v.namespace $Global }}
-    sectionName: {{ $v.sectionName | default "http" }}
+  {{- if .Values.httpRoutes.parentRefs }}
+    {{- toYaml .Values.httpRoutes.parentRefs | nindent 4 }}
+  {{- else }}
+    {{- include "qmig.httpRoutes.parentRefs" . | indent 4 }}
   {{- end }}
   {{- with .Values.httpRoutes.hostnames }}
   hostnames:

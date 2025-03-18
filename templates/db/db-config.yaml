@@ -2,7 +2,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ template "qmig.db.fullname" . }}-config
+  name: {{ template "qmig.db.fullname" . }}-loader
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "qmig.db.labels" . | nindent 4 }}

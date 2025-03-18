@@ -1,4 +1,4 @@
-{{- if and .Values.gateway.enabled .Values.httpRoutes.redirectHttp }}
+{{- if and .Values.httpRoutes.enabled .Values.httpRoutes.redirectHttp }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -11,12 +11,11 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- $Global := . }}
   parentRefs:
-  {{- range $k, $v := .Values.httpRoutes.parentRefs }}
-  - name: {{ tpl $v.name $Global }}
-    namespace: {{ tpl $v.namespace $Global }}
-    sectionName: http
+  {{- if .Values.httpRoutes.parentRefs }}
+    {{- toYaml .Values.httpRoutes.parentRefs | nindent 4 }}
+  {{- else }}
+    {{- include "qmig.httpRoutes.parentRefs" . | indent 4 }}
   {{- end }}
   {{- with .Values.httpRoutes.hostnames }}
   hostnames:

@@ -13,7 +13,7 @@ imageCredentials:
 
 ## Installing the Ingress Controller
 ingressController:
-  enabled: true
+  enabled: false
 
 ## Required exsiting or new PVC to be created
 shared:
@@ -21,5 +21,23 @@ shared:
     existingClaim: "qmig-shared"
 
 ingress:
+  enabled: false
   className: "nginx"
   host: "example.internal"
+
+httpRoutes:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-gateway
+  parentRefs:
+    - name: qmig-gateway
+      namespace: ns-admin
+      sectionName: http
+    - name: qmig-gateway
+      namespace: ns-admin
+      sectionName: https-admin
+  ## @param httpRoutes.hostnames hostnames in routes record Default: []
+  hostnames:
+    - "example.internal"
+  ## @param httpRoutes.redirectHttp create redirect filter http to https Default: false
+  redirectHttp: true

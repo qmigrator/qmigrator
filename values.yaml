@@ -214,10 +214,7 @@ httpRoutes:
   ## @param httpRoutes.labels Add labels for the httpRoutes Default: {}
   labels: {}
   ## @param httpRoutes.parentRefs define route parents to gateway Default: -
-  parentRefs:
-    - name: '{{- include "qmig.gateway.fullname" . }}'
-      namespace: '{{ .Release.Namespace }}'
-      sectionName: http
+  parentRefs: []
   ## @param httpRoutes.hostnames hostnames in routes record Default: []
   hostnames: []
   ## @param httpRoutes.redirectHttp create redirect filter http to https Default: false
