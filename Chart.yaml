@@ -12,7 +12,6 @@ home: https://qmigrator.github.io/qmigrator
 
 sources:
   - https://github.com/qmigrator/qmigrator
-  - https://github.com/qmigrator/qmigrator
 
 maintainers:
   - name: narendra
