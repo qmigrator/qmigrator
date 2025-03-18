@@ -22,25 +22,22 @@ shared:
     existingClaim: "qmig-shared"
 
 ingress:
+  enabled: false
   className: "nginx"
   host: "example.internal"
 
 httpRoutes:
   enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-gateway
   parentRefs:
     - name: qmig-gateway
-      namespace: ns-1167
+      namespace: qmig-ns
       sectionName: http
     - name: qmig-gateway
-      namespace: ns-1167
-      sectionName: https-1167
+      namespace: qmig-ns
+      sectionName: https-qmig
   ## @param httpRoutes.hostnames hostnames in routes record Default: []
   hostnames:
-    - "dvora2pg.qmigrator.ai"
-  ## @param httpRoutes.redirectHttp create redirect filter http to https Default: false
-  redirectHttp: true
+    - "example.internal"
 
 ## Enabling the Airflow
 airflow:
