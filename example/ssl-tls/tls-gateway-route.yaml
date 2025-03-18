@@ -19,14 +19,14 @@ spec:
     port: 80
     allowedRoutes:
       namespaces:
-        from: All
+        from: Same
   - name: https
     hostname: "example.com"
     protocol: HTTPS
     port: 443
     allowedRoutes:
       namespaces:
-        from: All
+        from: Same
     tls:
       mode: Terminate
       certificateRefs:
