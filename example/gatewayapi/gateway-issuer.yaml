@@ -1,13 +1,13 @@
 Version: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: letsencrypt-gateway
-  namespace: qmig-ns
+  name: letsencrypt
+  namespace: {{ NAMESPACE }}
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      name: letsencrypt-gateway
+      name: letsencrypt
     solvers:
       - http01:
           gatewayHTTPRoute:

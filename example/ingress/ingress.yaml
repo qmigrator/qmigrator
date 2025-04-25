@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: qmig-ingress
+  namespace: {{ NAMESPACE }}
+  labels:
+    component: "app"
+    app.kubernetes.io/name: qmig
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "your-domain.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qmig-app
+                port:
+                  number: 4200
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: qmig-eng
+                port:
+                  number: 8080
+          - path: /airflow
+            pathType: Prefix
+            backend:
+              service:
+                name: qmig-airflow-webserver
+                port:
+                  number: 8080

@@ -2,22 +2,21 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: qmig-ingress
-  namespace: qmig-ns
+  namespace: {{ NAMESPACE }}
   labels:
     component: "app"
     app.kubernetes.io/name: qmig
   annotations:
-    cert-manager.io/issuer: letsencrypt
-    ## If cluster-issuer created
-    # cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/issuer: letsencrypt # If issuer created
+    # cert-manager.io/cluster-issuer: letsencrypt # If cluster-issuer created
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - "example.com"
+        - "your-domain.com"
       secretName: qmig-tls
   rules:
-    - host: "example.com"
+    - host: "your-domain.com"
       http:
         paths:
           - path: /

@@ -1,0 +1,56 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: qmig-gateway
+  namespace: {{ NAMESPACE }}
+  labels:
+    component: "app"
+    app.kubernetes.io/name: qmig
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: http
+    hostname: "your-domain.com"
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: All
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+ name: qmig-route
+ namespace: {{ NAMESPACE }}
+ labels:
+   component: "app"
+   app.kubernetes.io/name: qmig
+spec:
+ parentRefs:
+ - name: qmig-gateway
+   namespace: {{ NAMESPACE }}
+   sectionName: http
+ hostnames:
+ - "your-domain.com"
+ rules:
+ - matches:
+   - path:
+       type: PathPrefix
+       value: /
+   backendRefs:
+   - name: qmig-app
+     port: 4200
+ - matches:
+   - path:
+       type: PathPrefix
+       value: /api
+   backendRefs:
+   - name: qmig-eng
+     port: 8080
+ - matches:
+   - path:
+       type: PathPrefix
+       value: /airflow
+   backendRefs:
+   - name: qmig-airflow-webserver
+     port: 8080
