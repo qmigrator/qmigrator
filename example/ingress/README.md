@@ -89,3 +89,11 @@
 
 6. **Verify TLS Setup**:
   Access your application using `https://your-domain.com` to confirm the TLS configuration is working.
+
+
+## References
+
+For detailed installation and configuration instructions, refer to the official documentation:
+
+- [NGINX Ingress Controller Installation Guide](https://docs.nginx.com/nginx-ingress-controller/installation/installing-nic/installation-with-helm/)
+- [cert-manager Installation Guide](https://cert-manager.io/docs/installation/helm/)
