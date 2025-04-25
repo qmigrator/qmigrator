@@ -1,101 +1,87 @@
 # Qmigrator Helm
 
 ## Pre-requisites
-- Project information from Quadrant like project ID, Name, Login information, etc.
-- Docker/Helm registry credentials given by the Quadrant
+- Obtain project details such as Project ID, Name, and Login credentials from Quadrant.
+- Acquire Docker/Helm registry credentials provided by Quadrant.
+
 > [!NOTE]
-The above parameters are required for secret. Check the secret & imageCredentials section of values.yaml
+These parameters are essential for creating secrets. Refer to the `secret` and `imageCredentials` sections in `values.yaml`.
 
-### Customize & prepare value file
-- You can provide a custom values file with the required properties.
-- A minimal version is available in [values.schema.yaml](values.schema.yaml), but you can still modify multiple properties in [values.yaml](values.yaml).
+### Preparing the Values File
+- Customize the `values.yaml` file with the required properties.
+- A minimal configuration is available in [values.example.yaml](values.example.yaml), which can be further modified as needed.
 
-### Namespace creation or use own
-```
-Kubectl create namespace qmig-ns 
-Kubectl config set-context --current --namespace=qmig-ns
+### Namespace Setup
+Create a namespace or use an existing one:
+```bash
+kubectl create namespace qmig-ns
+kubectl config set-context --current --namespace=qmig-ns
 ```
 
-### Install Qmigrator in Quick setting
-```
+### Helm Installation
+Login to Qmigrator helm registry:
+```bash
 helm registry login qmigrator.azurecr.io --username <username> --password <password>
-helm install <name> oci://qmigrator.azurecr.io/helm/admin -f values.schema.yaml
+```
+Install Qmigrator using the following command:
+```bash
+helm install <name> oci://qmigrator.azurecr.io/helm/admin -f values.example.yaml
 ```
 
 ## Ingress Controller
-- Qmigrator uses ingress to expose the application
-- You may use existing ingress if present in the cluster by updating the properties of
-<br>OR 
-- Enable the flag of Ingress controller installation within the Helm chart
+- Qmigrator uses an ingress controller to expose the application.
+- You can either use an existing ingress controller in the cluster by updating its properties or enable the ingress controller installation via the Helm chart:
+```bash
+--set ingressController.enabled=true
 ```
-  --set ingressController.enabled=true
-```
-- Two providers of Ingress Controller available ["kubernetes", "nginx-inc"] which can be set via provider flag
+- Supported ingress controller providers: `kubernetes` and `nginx-inc`. Specify the provider using the `provider` flag.
 
 > [!NOTE]
-More Ref: https://github.com/kubernetes/ingress-nginx <br>
-https://github.com/nginxinc/kubernetes-ingress
+For more information, refer to:
+- [Kubernetes Ingress NGINX](https://github.com/kubernetes/ingress-nginx)
+- [NGINX Kubernetes Ingress](https://github.com/nginxinc/kubernetes-ingress)
 
-## Enable Airflow DataMigration
-- Pass extra flag for Airflow installation within Helm chart
-- Password is mandatory to access the Airflow
-```
-  --set airflow.enabled=true --set airflow.secret.data.airflow_password="passxxxx"
-```
 
 ## Data Persistence
-- Qmigrator Application requires two Storage 
-  - Shared Disk – Sharable across application (ReadWriteMany) 
-  - Block Storage – Each Disk for Database & Cache (ReadWriteOnce) 
+Qmigrator Admin requires two types of storage:
+1. **Shared Disk**: Shared across applications (ReadWriteMany).
+2. **Block Storage**: Dedicated storage for the database and cache (ReadWriteOnce).
 
-- Helm chart does support dynamic or static provisioning of PV/PVC creation; however, you need to manage the storage class and manual creation of persistent volume, etc. 
+- The Helm chart supports both dynamic and static provisioning of PV/PVC. However, you must manage the storage class and manually create persistent volumes if required.
 
 > [!IMPORTANT]
-DO NOT USE ReadWriteMany or Shared Persistent volume given here to the Metadata DB (Postgres) & Cache Component
+Avoid using ReadWriteMany or shared persistent volumes for the Metadata Database (Postgres) and Cache components.
 
 > [!TIP]
-Check more [examples](example) in the repository
+Refer to the following examples for more details:
+- [Shared Storage Example](example/shared-storage/)
+- [Storage Class Example](example/storage-classes/)
 
-### Docker Desktop volume (Windows)
-- Use on Docker Desktop Kubernetes, LocalPath as Windows device path
+### Storage Options
+#### Docker Desktop (Windows)
+- Use `LocalPath` as the Windows device path for Docker Desktop Kubernetes.
 
-### Minikube volume (Linux, Windows, MacOS, etc.)
-- Mount the local path while starting the minikube
-- eg. /hostpc on minikube points to {LOCAL_PATH} of device
-```
+#### Minikube (Linux, Windows, macOS)
+- Mount the local path when starting Minikube:
+```bash
 minikube start --mount --mount-string={LOCAL_PATH}:/hostpc
 ```
 
-### Azure Cloud volume
-- Fileshare in Azure can be mounted on Kubernetes
-- Required secret key to access & mount
-- See more: https://learn.microsoft.com/en-us/azure/aks/azure-csi-files-storage-provision
+#### Azure Cloud
+- Use Azure Fileshare for Kubernetes storage.
+- Requires a secret key for access and mounting.
+- Learn more: [Azure CSI Files Storage Provisioning](https://learn.microsoft.com/en-us/azure/aks/azure-csi-files-storage-provision)
 
-### Google Cloud volume
-- GSC bucket can be mounted on Kubernetes, using gscfuse driver
-- Service account required with permission to access & attach
-- See more: https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver#create-persistentvolume
+#### Google Cloud
+- Mount GCS buckets on Kubernetes using the `gcsfuse` driver.
+- Requires a service account with appropriate permissions.
+- Learn more: [GCS Fuse CSI Driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver#create-persistentvolume)
 
-### AWS Cloud volume
-- Shared system in AWS using EFS can be mounted
-- User & ODIC based login in AWS cluster can use & attach
-- See more: https://github.com/kubernetes-sigs/aws-efs-csi-driver/blob/master/examples/kubernetes/static_provisioning/README.md
+#### AWS Cloud
+- Use AWS EFS for shared storage.
+- Supports user and OIDC-based authentication for AWS clusters.
+- Learn more: [AWS EFS CSI Driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver/blob/master/examples/kubernetes/static_provisioning/README.md)
 
-## TLS Certificate (Optional) 
-The APIs & GUI can be served over a TLS1.2+ connection. Ingress TLS can be set up using cert-manager &  letsencrypt, which manager auto-renew before expiration too.
-
-- Install the cert-managaer using Helm
- https://cert-manager.io/docs/installation/helm/
-
-- Create certificate issuer on namespace/cluster
-  https://cert-manager.io/docs/concepts/issuer/
-
-- Update the annotation of ingress in ingress section of Qmigrator Helm
-https://cert-manager.io/docs/concepts/issuer/
-
-> [!NOTE]
-Depending on the requirement you can use the other provider or bring your own TLS certificate 
-https://kubernetes.io/docs/concepts/services-networking/ingress/#tls 
 
 ## Values.YAML
 ### Globals

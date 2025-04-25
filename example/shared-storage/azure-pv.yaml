@@ -1,0 +1,52 @@
+# Source: qmig/templates/csi/file-driver.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: file-csi
+provisioner: "file.csi.azure.com"
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+parameters:
+  skuName: Standard_LRS
+---
+# Source: qmig/templates/app/app-pv.yaml
+# Ref: https://learn.microsoft.com/en-us/azure/aks/azure-csi-files-storage-provision#create-a-kubernetes-secret
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qmig-shared
+spec:
+  capacity:
+    storage: "5Gi"
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "file-csi"
+  csi:
+    driver: file.csi.azure.com
+    readOnly: false
+    volumeHandle: qmig-shared-pv0
+    volumeAttributes:
+      resourceGroup: {{AZURE_RG}} ## Resource Group
+      shareName: {{AZURE_FILESHARE}} ## Fileshare name
+    nodeStageSecretRef:
+      name: {{STG_KEY_SECRET_NAME}} ## Storage account key secret
+      namespace: qmig-ns
+---
+# Source: qmig/templates/app/app-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/name: qmig
+  name: qmig-shared
+  namespace: qmig-ns
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: "file-csi"
+  volumeName: qmig-shared
+  resources:
+    requests:
+      storage: "5Gi"

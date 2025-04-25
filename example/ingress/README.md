@@ -1,0 +1,99 @@
+## Quick Setup: NGINX Ingress Controller
+
+### Prerequisites
+- Kubernetes cluster (v1.22 or later)
+- `kubectl` and `helm` installed and configured
+
+### Installation Steps
+
+1. **nstall Ingress CRDs**:
+  ```bash
+  kubectl apply -f https://raw.githubusercontent.com/nginx/kubernetes-ingress/v5.0.0/deploy/crds.yaml
+  ```
+
+2. **Install NGINX Ingress Controller**:
+  ```bash
+  helm install ingress-nginx oci://ghcr.io/nginx/charts/nginx-ingress --version 2.1.0 --create-namespace -n ingress-nginx
+  ```
+
+3. **Verify Installation**:
+  ```bash
+  kubectl get pods -n ingress-nginx
+  ```
+
+  Ensure all pods are running.
+
+4. **Create an Ingress Resource**:
+  Update the [Ingress](ingress.yaml) file to include the desired namespace (`{{ Namespace }}`) and replace the placeholder domain with your required domain. Once updated, apply the configuration:
+
+  ```bash
+  kubectl apply -f ingress.yaml
+  ```
+
+5. **Access the Application**:
+  Retrieve the external IP of the Ingress Controller:
+  ```bash
+  kubectl get svc -n ingress-nginx
+  ```
+
+  Access the application in your browser or via `curl`:
+  ```bash
+  curl http://<EXTERNAL-IP>
+  ```
+
+### Quick Setup: cert-manager for TLS Configuration
+
+1. **Add Helm cert-manager**:
+  ```bash
+  helm repo add jetstack https://charts.jetstack.io --force-update
+  ```
+
+1. **Install cert-manager**:
+  ```bash
+  helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --set crds.enabled=true --create-namespace
+  ```
+
+2. **Verify Installation**:
+  ```bash
+  kubectl get pods -n cert-manager
+  ```
+
+  Ensure all cert-manager pods are running.
+
+3. **Create a ClusterIssuer**:
+  Update the [ClusterIssuer](ingress-cluster-issuer.yaml) for Let's Encrypt (staging or production). Once updated, apply the configuration:
+  
+  ```bash
+  kubectl apply -f ingress-cluster-issuer.yaml
+  ```
+  
+  OR
+  Update the [Issuer](ingress-issuer.yaml) at namespaced scoped with desired namespace (`{{ Namespace }}`). Once updated, apply the configuration:
+  
+  ```bash
+  kubectl apply -f ingress-issuer.yaml
+  ```
+
+
+4. **Update Ingress Route for TLS**:
+
+  Modify the [Ingress](ingress-tls.yaml) file to include the `tls` block and reference the `ClusterIssuer` or `Issuer`. Add the appropriate annotations based on your setup. Example:
+
+    annotations:
+     cert-manager.io/cluster-issuer: letsencrypt # Use this if a ClusterIssuer is created
+     # cert-manager.io/issuer: letsencrypt # Use this if an Issuer is created
+
+  ```bash
+  kubectl apply -f ingress-tls.yaml
+  ```
+
+6. **Verify TLS Setup**:
+  Access your application using `https://your-domain.com` to confirm the TLS configuration is working.
+
+
+## References
+
+For detailed installation and configuration instructions, refer to the official documentation:
+
+- [NGINX Ingress Controller Installation Guide](https://docs.nginx.com/nginx-ingress-controller/installation/installing-nic/installation-with-helm/)
+- [cert-manager Installation Guide](https://cert-manager.io/docs/installation/helm/)
