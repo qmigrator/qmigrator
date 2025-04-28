@@ -30,6 +30,14 @@
   kubectl apply -f ingress.yaml
   ```
 
+  > **Note**: Verify the service names in your `backend` with the services available in your namespace. For example:
+  > ```yaml
+  > backend:
+  >   service:
+  >     name: qmig-app
+  > ```
+
+
 5. **Access the Application**:
   Retrieve the external IP of the Ingress Controller:
   ```bash
@@ -86,6 +94,14 @@
   ```bash
   kubectl apply -f ingress-tls.yaml
   ```
+
+  > **Note**: Verify the service names in your `backend` with the services available in your namespace. For example:
+  > ```yaml
+  > backend:
+  >   service:
+  >     name: qmig-app
+  > ```
+
 
 6. **Verify TLS Setup**:
   Access your application using `https://your-domain.com` to confirm the TLS configuration is working.
