@@ -32,7 +32,7 @@ spec:
         metadata:
           labels:
             {{- include "qmig.wbdba.labels" . | nindent 12 }}
-          {{- with .Values.wbdba.annotations }}
+          {{- with .Values.wbdba.podAnnotations }}
           annotations: {{ toYaml . | nindent 12 }}
           {{- end }}
         spec:

@@ -32,7 +32,7 @@ spec:
         metadata:
           labels:
             {{- include "qmig.convs.labels" . | nindent 12 }}
-          {{- with .Values.convs.annotations }}
+          {{- with .Values.convs.podAnnotations }}
           annotations: {{ toYaml . | nindent 12 }}
           {{- end }}
         spec:
