@@ -30,6 +30,12 @@
   kubectl apply -f gateway-route.yaml
   ```
 
+  > **Note**: Verify the service names in your `backendRefs` with the services available in your namespace. For example:
+  > ```yaml
+  > backendRefs:
+  >   - name: qmig-airflow-webserver
+  > ```
+
 5. **Access the Application**:
   Retrieve the external IP of the Gateway:
   ```bash
@@ -86,6 +92,13 @@
   ```bash
   kubectl apply -f gateway-route-tls.yaml
   ```
+
+  > **Note**: Verify the service names in your `backendRefs` with the services available in your namespace. For example:
+  > ```yaml
+  > backendRefs:
+  >   - name: qmig-airflow-webserver
+  > ```
+
 
 6. **Verify TLS Setup**:
   Access your application using `https://your-domain.com` to confirm the TLS configuration is working.
