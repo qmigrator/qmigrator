@@ -14,7 +14,7 @@ spec:
   mountOptions:
     - implicit-dirs
     - dir-mode=777
-    - file-mode=775
+    - file-mode=777
   csi:
     driver: gcsfuse.csi.storage.gke.io
     volumeHandle: {{BUCKET_NAME}} ## GCP Bucket name
