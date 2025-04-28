@@ -13,6 +13,8 @@ spec:
   storageClassName: "file-csi"
   mountOptions:
     - implicit-dirs
+    - dir-mode=777
+    - file-mode=775
   csi:
     driver: gcsfuse.csi.storage.gke.io
     volumeHandle: {{BUCKET_NAME}} ## GCP Bucket name
