@@ -1,3 +1,18 @@
+## Update Existing Controller ClassName
+
+If an existing Ingress Controller is already installed, ensure the `className` in the [ingress.yaml](ingress.yaml) file matches the controller's configured class name. Update the `className` field as needed:
+
+```yaml
+spec:
+  ingressClassName: <YOUR_CONTROLLER_CLASSNAME>
+```
+
+Replace `<YOUR_CONTROLLER_CLASSNAME>` with the appropriate class name for your controller. Once updated, apply the configuration:
+
+```bash
+kubectl apply -f ingress.yaml
+```
+
 ## Quick Setup: NGINX Ingress Controller
 
 ### Prerequisites

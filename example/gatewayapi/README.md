@@ -1,3 +1,18 @@
+## Update Existing Controller ClassName
+
+If an existing GatewayAPI Controller is already installed, ensure the `className` in the [gateway-route.yaml](gateway-route.yaml) file matches the controller's configured class name. Update the `className` field as needed:
+
+```yaml
+spec:
+  gatewayClassName: <YOUR_CONTROLLER_CLASSNAME>
+```
+
+Replace `<YOUR_CONTROLLER_CLASSNAME>` with the appropriate class name for your controller. Once updated, apply the configuration:
+
+```bash
+kubectl apply -f gateway-route.yaml
+```
+
 ## Quick Setup: NGINX Fabric GatewayAPI
 
 ### Prerequisites
@@ -12,8 +27,18 @@
   ```
 
 2. **Deploy NGINX GatewayAPI Controller**:
+
+  - **Default**
   ```bash
   helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway
+  ```
+
+  - **AWS NLB**:
+  ```bash
+  helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway \
+    --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-nlb-target-type"="ip" \
+    --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="external" \
+    --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-cross-zone-load-balancing-enabled"="true"
   ```
 
 3. **Verify Installation**:
@@ -61,7 +86,7 @@
   If domain mapped, access your application using `http://your-domain.com`.
 
 
-### Quick Setup: cert-manager for TLS Configuration
+### (Only for TLS) Quick Setup: cert-manager for TLS Configuration
 
 1. **Add Helm cert-manager**:
   ```bash
