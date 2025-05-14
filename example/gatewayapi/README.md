@@ -36,10 +36,12 @@ kubectl apply -f gateway-route.yaml
   - **AWS NLB**:
   ```bash
   helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway \
-    --set service.annotations="service.beta.kubernetes.io/aws-load-balancer-nlb-target-type:ip" \
-    --set service.annotations="service.beta.kubernetes.io/aws-load-balancer-type:external" \
-    --set service.annotations="service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled:true"
+    --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-nlb-target-type"="ip" \
+    --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="external" \
+    --set-string service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-cross-zone-load-balancing-enabled"="true"
   ```
+
+  
 
 3. **Verify Installation**:
   ```bash
