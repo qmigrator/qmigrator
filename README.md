@@ -96,7 +96,7 @@ minikube start --mount --mount-string={LOCAL_PATH}:/hostpc
 
 1. List pods created by the deployment:
     ```sh
-    kubectl get pods -n qmigrator-migration
+    kubectl get pods -n qmig-ns
     ```
 
 2. To expose QMigrator externally, follow the [Gateway Guide](../../example/gatewayapi/README.md) for gateway configuration, or refer to the [Ingress Guide](../../example/ingress/README.md) for legacy ingress setup (deprecated).

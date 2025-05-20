@@ -1751,3 +1751,72 @@ airflow:
       limits:
         cpu: 300m
         memory: 500Mi
+
+## Project DB migration job settings
+dbJob:
+  name: "db-job"
+
+  image:
+    repository: qmigrator.azurecr.io/qmigdbv2
+    tag: ora2pg-21
+    pullPolicy: IfNotPresent
+
+  ## @param dbJob.enabled Whether to enable the Airflow DB migration job Default: false
+  enabled: false
+  ## @param dbJob.safeToEvict This setting tells Kubernetes that it's ok to evict Default: true
+  safeToEvict: true
+  ## @param dbJob.annotations Add extra annotations to the dbJob Default: {}
+  annotations: {}
+  ## @param dbJob.podAnnotations Add extra Pod annotations to the dbJob pod Default: {}
+  podAnnotations: {}
+  ## @param dbJob.useHelmHooks Helm hook for job pod Default: false
+  useHelmHooks: false
+  ## @param dbJob.securityContexts.pod default security context for dbJob pod Default: {}
+  ## @param dbJob.securityContexts.container default security context for dbJob containers Default: {}
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  securityContexts:
+    pod: {}
+    container: {}
+
+  ## @param dbJob.tolerations Tolerations for dbJob pods assignment Default: []
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+  ## @param dbJob.affinity Affinity for dbJob pods assignment (evaluated as a template) Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  ## @param dbJob.nodeSelector Node labels for dbJob pods assignment Default: {}
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param dbJob.labels Labels for dbJob Default: {}
+  labels: {}
+
+  ## @param dbJob.args Arguments to pass to the dbJob container Default: ['0']
+  args: ['0']
+  
+  ## @param dbJob.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 250Mi
+    limits:
+      cpu: 300m
+      memory: 500Mi
+
+  ## Wait for Project DB to get ready
+  waitForProjectDB:
+    ## @param dbJob.waitForProjectDB.enabled Whether to enable the wait-for-DB init container Default: false
+    enabled: true
+    image:
+      repository: busybox
+      tag: "1.37"
+      pullPolicy: IfNotPresent
+    
+    ## @param dbJob.waitForProjectDB.resources Set resources for the wait-for-DB container Default: {}
+    resources:
+      requests:
+        cpu: 50m
+        memory: 100Mi
+      limits:
+        cpu: 50m
+        memory: 100Mi

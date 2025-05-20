@@ -39,8 +39,10 @@ spec:
       affinity: {{- toYaml $affinity | nindent 8 }}
       tolerations: {{- toYaml $tolerations | nindent 8 }}
       serviceAccountName: {{ template "qmig.serviceAccount" . }}
+      {{- if (not .Values.dbJob.enabled) }}
       initContainers: 
       {{- include "qmig.db.load-db" (dict "Values" .Values "volumename" $pvcTemp ) | indent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Values.db.name }}
           image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"

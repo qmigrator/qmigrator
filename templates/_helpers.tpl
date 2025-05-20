@@ -303,7 +303,6 @@ component: {{ .Values.db.name | quote }}
 
 {{/*
 Define an init-container which checks the DB status
-EXAMPLE USAGE: {{ include "airflow.init_container.check_db" (dict "Release" .Release "Values" .Values "volumeMounts" $volumeMounts) }}
 */}}
 {{- define "qmig.db.load-db" }}
 - name: load-db
@@ -315,6 +314,58 @@ EXAMPLE USAGE: {{ include "airflow.init_container.check_db" (dict "Release" .Rel
     - mountPath: /sqlconfig
       name: {{ .volumename }}
       subPath: sqlfile
+{{- end }}
+
+
+{{/*
+Define an db-job as liquibase to apply db changes
+*/}}
+{{- define "qmig.dbJob.fullname" -}}
+{{- printf "%s-%s" .Release.Name .Values.dbJob.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "qmig.dbJob.selectorLabels" -}}
+component: {{ .Values.dbJob.name | quote }}
+{{ include "qmig.selectorLabels" . }}
+{{- with .Values.dbJob.labels }}
+{{ toYaml . | print }}
+{{- end }}
+{{- end -}}
+
+{{- define "qmig.dbJob.labels" -}}
+{{ include "qmig.dbJob.selectorLabels" . }}
+{{ include "qmig.labels" . }}
+{{- end -}}
+
+{{- define "qmig.dbJob.image" -}}
+{{- printf "%s:%s" (.Values.dbJob.image.repository ) (.Values.dbJob.image.tag) }}
+{{- end -}}
+
+{{- define "qmig.dbJob.waitForProjectDB.image" -}}
+{{- printf "%s:%s" (.Values.dbJob.waitForProjectDB.image.repository ) (.Values.dbJob.waitForProjectDB.image.tag) }}
+{{- end -}}
+
+{{- define "qmig.dbJob.env" -}}
+- name: LIQUIBASE_COMMAND_URL
+  value: {{ urlJoin (dict "scheme" "jdbc:postgresql" "host" (printf "%s:%s" (include "qmig.db.hostname" .) (include "qmig.db.port" .)) "path" (printf "/prjdb%s" (.Values.secret.data.PROJECT_ID | toString) )) }}
+- name: LIQUIBASE_COMMAND_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "qmig.secret" . }}
+      key: POSTGRES_PASSWORD
+- name: LIQUIBASE_COMMAND_USERNAME
+  value: "postgres"
+{{- end -}}
+
+{{- define "qmig.dbJob.dbjob_command" }}
+  - 'sh'
+  - 'execute.sh'
+{{- end }}
+
+{{- define "qmig.dbJob.waitForProjectDB.wait-for-db-command" }}
+  - sh'
+  - '-c'
+  - {{ printf "until nslookup %s; do echo waiting for database; sleep 2; done" (include "qmig.db.hostname" .) | quote }}
 {{- end }}
 
 
