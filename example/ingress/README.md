@@ -21,7 +21,7 @@ kubectl apply -f ingress.yaml
 
 ### Installation Steps
 
-1. **nstall Ingress CRDs**:
+1. **Install Ingress CRDs**:
   ```bash
   kubectl apply -f https://raw.githubusercontent.com/nginx/kubernetes-ingress/v5.0.0/deploy/crds.yaml
   ```

@@ -90,6 +90,18 @@ minikube start --mount --mount-string={LOCAL_PATH}:/hostpc
 - Learn more: [AWS EFS CSI Driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver/blob/master/examples/kubernetes/static_provisioning/README.md)
 
 
+## Post-Deployment Steps
+
+### Check Pod Status
+
+1. List pods created by the deployment:
+    ```sh
+    kubectl get pods -n qmigrator-migration
+    ```
+
+2. To expose QMigrator externally, follow the [Gateway Guide](../../example/gatewayapi/README.md) for gateway configuration, or refer to the [Ingress Guide](../../example/ingress/README.md) for legacy ingress setup (deprecated).
+
+
 ## Values.YAML
 ### Globals
 | Property | Description | Default | 
