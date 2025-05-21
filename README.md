@@ -61,8 +61,8 @@ Avoid using ReadWriteMany or shared persistent volumes for the Metadata Database
 
 > [!TIP]
 Refer to the following examples for more details:
-- [Shared Storage Example](example/shared-storage/)
-- [Storage Class Example](example/storage-classes/)
+> - [Shared Storage Example](example/shared-storage/)
+> - [Storage Class Example](example/storage-classes/)
 
 ### Storage Options
 #### Docker Desktop (Windows)
