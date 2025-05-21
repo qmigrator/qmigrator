@@ -37,9 +37,9 @@ helm install <name> oci://qmigrator.azurecr.io/helm/qmig -f values.example.yaml
 - Supported ingress controller providers: `kubernetes` and `nginx-inc`. Specify the provider using the `provider` flag.
 
 > [!NOTE]
-For more information, refer to:
-- [Kubernetes Ingress NGINX](https://github.com/kubernetes/ingress-nginx)
-- [NGINX Kubernetes Ingress](https://github.com/nginxinc/kubernetes-ingress)
+> For more information, refer to:
+> [Kubernetes Ingress NGINX](https://github.com/kubernetes/ingress-nginx)
+> [NGINX Kubernetes Ingress](https://github.com/nginxinc/kubernetes-ingress)
 
 ## Enabling Airflow Data Migration
 To enable Airflow, pass the following flags during installation:
