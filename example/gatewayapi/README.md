@@ -74,7 +74,8 @@ kubectl apply -f gateway-route.yaml
   kubectl apply -f gateway-route.yaml
   ```
 
-  > **Note**: Verify the service names in your `backendRefs` with the services available in your namespace. For example:
+  > [!IMPORTANT]
+  > Verify the service names in your `backendRefs` with the services available in your namespace. For example:
   > ```yaml
   > backendRefs:
   >   - name: qmig-airflow-webserver
@@ -144,7 +145,8 @@ kubectl apply -f gateway-route.yaml
   kubectl apply -f gateway-route-tls.yaml
   ```
 
-  > **Note**: Verify the service names in your `backendRefs` with the services available in your namespace. For example:
+  > [!IMPORTANT]
+  > Verify the service names in your `backendRefs` with the services available in your namespace. For example:
   > ```yaml
   > backendRefs:
   >   - name: qmig-airflow-webserver

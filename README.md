@@ -4,7 +4,7 @@
 - Obtain project details such as Project ID, Name, and Login credentials from Quadrant.
 - Acquire Docker/Helm registry credentials provided by Quadrant.
 
-> [!NOTE]
+> [!IMPORTANT]
 These parameters are essential for creating secrets. Refer to the `secret` and `imageCredentials` sections in `values.yaml`.
 
 ### Preparing the Values File

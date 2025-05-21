@@ -51,7 +51,8 @@ kubectl apply -f ingress.yaml
   kubectl apply -f ingress.yaml
   ```
 
-  > **Note**: Verify the service names in your `backend` with the services available in your namespace. For example:
+  > [!IMPORTANT]
+  > Verify the service names in your `backend` with the services available in your namespace. For example:
   > ```yaml
   > backend:
   >   service:
@@ -122,7 +123,8 @@ kubectl apply -f ingress.yaml
   kubectl apply -f ingress-tls.yaml
   ```
 
-  > **Note**: Verify the service names in your `backend` with the services available in your namespace. For example:
+  > [!IMPORTANT]
+  > Verify the service names in your `backend` with the services available in your namespace. For example:
   > ```yaml
   > backend:
   >   service:
