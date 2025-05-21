@@ -38,7 +38,7 @@ helm install <name> oci://qmigrator.azurecr.io/helm/qmig -f values.example.yaml
 
 > [!NOTE]
 > For more information, refer to:
-> [Kubernetes Ingress NGINX](https://github.com/kubernetes/ingress-nginx)
+> [Kubernetes Ingress NGINX](https://github.com/kubernetes/ingress-nginx) **and**
 > [NGINX Kubernetes Ingress](https://github.com/nginxinc/kubernetes-ingress)
 
 ## Enabling Airflow Data Migration
