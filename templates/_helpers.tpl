@@ -363,7 +363,7 @@ component: {{ .Values.dbJob.name | quote }}
 {{- end }}
 
 {{- define "qmig.dbJob.waitForProjectDB.wait-for-db-command" }}
-  - sh'
+  - 'sh'
   - '-c'
   - {{ printf "until nslookup %s; do echo waiting for database; sleep 2; done" (include "qmig.db.hostname" .) | quote }}
 {{- end }}
