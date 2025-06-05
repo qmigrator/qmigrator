@@ -1770,7 +1770,7 @@ dbJob:
   ## @param dbJob.podAnnotations Add extra Pod annotations to the dbJob pod Default: {}
   podAnnotations: {}
   ## @param dbJob.useHelmHooks Helm hook for job pod Default: false
-  useHelmHooks: false
+  useHelmHooks: true
   ## @param dbJob.securityContexts.pod default security context for dbJob pod Default: {}
   ## @param dbJob.securityContexts.container default security context for dbJob containers Default: {}
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
