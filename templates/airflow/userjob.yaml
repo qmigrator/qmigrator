@@ -1,4 +1,4 @@
-{{- if .Values.airflow.enabled }}
+{{- if and .Values.airflow.enabled .Values.airflow.createUserJob.enabled }}
 {{- $nodeSelector := .Values.airflow.createUserJob.nodeSelector | default .Values.airflow.nodeSelector }}
 {{- $affinity := .Values.airflow.createUserJob.affinity | default .Values.airflow.affinity }}
 {{- $tolerations := .Values.airflow.createUserJob.tolerations | default .Values.airflow.tolerations }}

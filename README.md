@@ -671,7 +671,7 @@ minikube start --mount --mount-string={LOCAL_PATH}:/hostpc
 #### Airflow DB Migration Job
 | Property | Description | Default | 
 | :--- | :--- | :--- | 
-| airflow.migrateDatabaseJob.enabled | Whether to create an init container to wait for db migrations | true | 
+| airflow.migrateDatabaseJob.enabled | Whether to create airflow database migration job | true | 
 | airflow.migrateDatabaseJob.safeToEvict | This setting tells Kubernetes that its ok to evict | true | 
 | airflow.migrateDatabaseJob.annotations | Add extra annotations to the migrateDatabaseJob | {} | 
 | airflow.migrateDatabaseJob.podAnnotations | Add extra Pod annotations to the migrateDatabaseJob pod | {} | 

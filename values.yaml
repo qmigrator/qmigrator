@@ -1680,6 +1680,8 @@ airflow:
 
   ## Airflow create user job settings
   createUserJob:
+    ## @param airflow.createUserJob.enabled Whether to create airflow user creation job Default: true
+    enabled: true
     ## @param airflow.createUserJob.safeToEvict This setting tells Kubernetes that its ok to evict Default: true
     safeToEvict: true
     ## @param airflow.createUserJob.annotations Add extra annotations to the createUserJob Default: {}
