@@ -32,10 +32,7 @@ spec:
       labels:
         {{- include "qmig.msg.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.msg.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      {{- include "qmig.dockerauthList" (list . .Values.msg) | indent 6 }}
       securityContext: {{ $securityContext | nindent 8 }}
       nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
       affinity: {{- toYaml $affinity | nindent 8 }}
