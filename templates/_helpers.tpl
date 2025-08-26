@@ -197,8 +197,6 @@ component: {{ .Values.eng.name | quote }}
 - name: REDIS_HOST
   value: {{ include "qmig.msg.hostname" . }}
   {{- if .Values.airflow.enabled }}
-- name: AIR_HOST
-  value: {{ include "qmig.airflow.hostname" . }}
 - name: airflow-password
   valueFrom:
     secretKeyRef:
@@ -411,6 +409,8 @@ component: {{ .Values.msg.name | quote }}
       key: PROJECT_ID
 - name: API_HOST
   value: {{ include "qmig.eng.hostname" . }}
+- name: AIR_HOST
+  value: {{ include "qmig.airflow.hostname" . }}
 {{- end -}}
 
 
