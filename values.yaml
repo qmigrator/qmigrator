@@ -434,7 +434,7 @@ eng:
   ##   value: ENV_VALUE
   env:
     - name: TZ
-      value: "Africa/Abidjan"
+      value: "GMT"
 
   ## @param eng.envSecret List of secrets with extra environment variables for all the component pods Default: []
   ## Example:
